@@ -60,9 +60,9 @@ function App() {
         .then((response) => response.json())
         .then((data) => {
           setConfig(data);
+          console.log("config", data);
         })
         .catch((error) => console.error('Error loading configuration:', error));
-      console.log("config", config);
     }
   }, []);
 
