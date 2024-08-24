@@ -1,22 +1,20 @@
-import React, { useEffect } from 'react';
-import BrightnessSlider from '../sliders/BrightnessSlider';
+import React from 'react';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Setting from './Setting';
 
-function NewSetting({ config, updateConfig }) {
+export default function SystemSettings({ config }) {
 
-    useEffect(() => {
-        const newConfig = { ...config, visualization: 'new' };
-        updateConfig(newConfig);
-        return () => {
-            // perform clean-up tasks here if needed
-        };
-    }, []);
-
+    const handleRestart = () => {
+        alert("Restarting the system...");
+    }
 
     return (
-        <div className="setting">
-            <BrightnessSlider config={config} updateConfig={updateConfig} />
-            {/* Add other components or controls */}
-        </div>
+        <Box >
+            <Setting content={"Port: " + config.port} />
+            <Button variant="contained" color="primary" onClick={handleRestart}>
+                Restart
+            </Button>
+        </Box >
     );
 }
-export default NewSetting;

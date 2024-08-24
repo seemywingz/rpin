@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import Setting from '../Setting';
+import Setting from './Setting';
 
 export default function SystemSettings({ config }) {
 

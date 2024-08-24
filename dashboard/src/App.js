@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SettingsSelector from './selectors/SettingsSelector';
-import { Box } from '@mui/material';
-import Setting from './Setting';
+import Setting from './settings/Setting';
 
 // Define the theme
 const theme = createTheme({
