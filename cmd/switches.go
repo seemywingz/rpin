@@ -55,7 +55,7 @@ func initSwitches() {
 
 	// Optionally, print out the initialized switches for debugging purposes
 	for _, sw := range switches {
-		fmt.Printf("Initialized switch: %s, on: %v, Pin: %d\n", sw.Name, sw.on, sw.PinNum)
+		fmt.Printf("Initialized switch: %s, on: %v, Pin: %d\n", sw.Name, sw.On, sw.PinNum)
 	}
 }
 
