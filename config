@@ -1,14 +1,16 @@
 {
   "port": 80,
   "dir": "./srv",
-  "switches": {
-    "light": {
+  "switches": [
+     {
+     "name": "light",
       "pin": 12,
-      "enabled": true
+      "on": false
     },
-    "fan": {
+    {
+      "name": "fan",
       "pin": 18,
-      "enabled": false
+      "on": false
     }
-  }
+  ]
 }

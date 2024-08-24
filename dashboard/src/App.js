@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SettingsSelector from './selectors/SettingsSelector';
 import Setting from './settings/Setting';
+import Switch from './Switch';
 
 // Define the theme
 const theme = createTheme({
@@ -33,16 +34,18 @@ const theme = createTheme({
 var defaultConfig = {
   "port": 80,
   "dir": "./srv",
-  "switches": {
-    "light": {
+  "switches": [
+    {
+      "name": "light",
       "pin": 12,
-      "enabled": true
+      "on": false
     },
-    "fan": {
+    {
+      "name": "fan",
       "pin": 18,
-      "enabled": false
+      "on": false
     }
-  }
+  ]
 }
 
 function App() {
@@ -63,6 +66,22 @@ function App() {
     }
   }, []);
 
+  function switches() {
+    if (config) {
+      const switches = [];
+      for (var key in config.switches) {
+        var sw = config.switches[key];
+        console.log("Switch", sw);
+        switches.push(
+          <Switch key={key} config={sw} />
+        );
+      }
+      return switches;
+    } else {
+      return [];
+    }
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Setting content={"VMON"} sx={{
@@ -72,6 +91,7 @@ function App() {
         zIndex: 1000,
       }} />
       <SettingsSelector config={config} />
+      {switches()}
     </ThemeProvider>
   );
 }
