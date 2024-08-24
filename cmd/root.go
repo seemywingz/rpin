@@ -19,6 +19,7 @@ var rootCmd = &cobra.Command{
 	Short: "vmon: RPI Servo Controller",
 	Long:  `	`,
 	Run: func(cmd *cobra.Command, args []string) {
+		initSwitches()
 		startServer()
 	},
 }
