@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SettingsSelector from './selectors/SettingsSelector';
 import Setting from './settings/Setting';
-import Switch from './Switch';
+import Switches from './switches/Switches';
 
 // Define the theme
 const theme = createTheme({
@@ -38,7 +38,7 @@ var defaultConfig = {
     {
       "name": "light",
       "pin": 12,
-      "on": false
+      "on": true
     },
     {
       "name": "fan",
@@ -66,21 +66,6 @@ function App() {
     }
   }, []);
 
-  function switches() {
-    if (config) {
-      const switches = [];
-      for (var key in config.switches) {
-        var sw = config.switches[key];
-        console.log("Switch", sw);
-        switches.push(
-          <Switch key={key} config={sw} />
-        );
-      }
-      return switches;
-    } else {
-      return [];
-    }
-  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -91,7 +76,7 @@ function App() {
         zIndex: 1000,
       }} />
       <SettingsSelector config={config} />
-      {switches()}
+      <Switches config={config} />
     </ThemeProvider>
   );
 }
