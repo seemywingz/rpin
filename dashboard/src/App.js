@@ -1,7 +1,8 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SettingsSelector from './selectors/SettingsSelector';
 import { Box } from '@mui/material';
+import Setting from './Setting';
 
 // Define the theme
 const theme = createTheme({
@@ -30,25 +31,48 @@ const theme = createTheme({
 
 });
 
+var defaultConfig = {
+  "port": 80,
+  "dir": "./srv",
+  "switches": {
+    "light": {
+      "pin": 12,
+      "enabled": true
+    },
+    "fan": {
+      "pin": 18,
+      "enabled": false
+    }
+  }
+}
+
 function App() {
+  var [config, setConfig] = useState(null);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log("Using default configuration");
+      setConfig(defaultConfig);
+    } else {
+      fetch('/config')
+        .then((response) => response.json())
+        .then((data) => {
+          setConfig(data);
+        })
+        .catch((error) => console.error('Error loading configuration:', error));
+      console.log("config", config);
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
-      <Box // Header
-        sx={{
-          height: '9vh',
-          // color: 'primary.main',
-          backgroundColor: '#333',
-          textAlign: 'center',
-          zIndex: 1000,
-          fontSize: '3em',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        VMON
-      </Box>
-      <SettingsSelector />
+      <Setting content={"VMON"} sx={{
+        backgroundColor: '#333',
+        fontSize: '3em',
+        height: '9vh',
+        zIndex: 1000,
+      }} />
+      <SettingsSelector config={config} />
     </ThemeProvider>
   );
 }

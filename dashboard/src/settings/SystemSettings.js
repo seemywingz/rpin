@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Setting from '../Setting';
 
-function SystemSettings({ config, updateConfig, saveConfig }) {
-    const [localConfig, setLocalConfig] = useState(config);
+export default function SystemSettings({ config }) {
 
     const handleRestart = () => {
-        // Perform restart system action
         alert("Restarting the system...");
     }
 
     return (
-        <div className="container">
-            <div className='setting'>
-                <Button variant="contained" color="primary" onClick={handleRestart}>
-                    Restart
-                </Button>
-            </div>
-        </div >
+        <Box >
+            <Setting content={"Port: " + config.port} />
+            <Button variant="contained" color="primary" onClick={handleRestart}>
+                Restart
+            </Button>
+        </Box >
     );
 }
-
-export default SystemSettings;

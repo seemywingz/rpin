@@ -6,7 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import SystemSettings from '../settings/SystemSettings';
 
-export default function SettingsSelector() {
+export default function SettingsSelector({ config }) {
     const [setting, setSetting] = React.useState('');
 
     const handleChange = (event) => {
@@ -15,7 +15,7 @@ export default function SettingsSelector() {
 
     const displaySettings = () => {
         if (setting === "system") {
-            return <SystemSettings />;
+            return <SystemSettings config={config} />;
         } else if (setting === "wifi") {
             return <div>WiFi Settings</div>;
         } else {
@@ -39,9 +39,7 @@ export default function SettingsSelector() {
                     <MenuItem value={"wifi"}>WiFi</MenuItem>
                 </Select>
             </FormControl>
-            <div className="setting">
-                {displaySettings()}
-            </div>
+            {displaySettings()}
         </Box>
     );
 }

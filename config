@@ -1,2 +1,14 @@
-# VMON
-port: 3000
+{
+  "port": 80,
+  "dir": "./srv",
+  "switches": {
+    "light": {
+      "pin": 12,
+      "enabled": true
+    },
+    "fan": {
+      "pin": 18,
+      "enabled": false
+    }
+  }
+}

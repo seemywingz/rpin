@@ -14,7 +14,6 @@ import (
 var verbose bool
 var configFile string
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "vmon",
 	Short: "vmon: RPI Servo Controller",
@@ -24,8 +23,6 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -34,18 +31,13 @@ func Execute() {
 }
 
 func init() {
-
 	cobra.OnInitialize(viperConfig)
-
 }
 
 func viperConfig() {
-	// use spf13/viper to read config file
-
 	viper.SetConfigName("config")      // name of config file (without extension)
-	viper.SetConfigType("yaml")        // REQUIRED the config file does not have an extension
+	viper.SetConfigType("json")        // REQUIRED the config file does not have an extension
 	viper.AddConfigPath("$HOME/.vmon") // call multiple times to add many search paths
-	viper.AddConfigPath("./files")     // look for config in the working directory /files
 	viper.AddConfigPath(".")           // look for config in the working directory
 
 	if configFile != "" {
@@ -56,7 +48,6 @@ func viperConfig() {
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		// Config file not found; ignore error if desired
 		fmt.Println("⚠️  Error Opening Config File:", err.Error(), "- Using Defaults")
 	} else {
 		if verbose {
