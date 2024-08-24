@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/seemywingz/gotoolbox/gtb"
@@ -55,7 +55,7 @@ func initSwitches() {
 
 	// Optionally, print out the initialized switches for debugging purposes
 	for _, sw := range switches {
-		fmt.Printf("Initialized switch: %s, on: %v, Pin: %d\n", sw.Name, sw.On, sw.PinNum)
+		log.Printf("Initialized switch: %s, on: %v, Pin: %d\n", sw.Name, sw.On, sw.PinNum)
 	}
 }
 
