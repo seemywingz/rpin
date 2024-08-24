@@ -56,7 +56,7 @@ function App() {
       console.log("Using default configuration");
       setConfig(defaultConfig);
     } else {
-      fetch('/config')
+      fetch('/api/config')
         .then((response) => response.json())
         .then((data) => {
           setConfig(data);

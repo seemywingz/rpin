@@ -16,7 +16,8 @@ func startServer() {
 	fileServer := http.FileServer(dir)
 	http.Handle("/", http.StripPrefix("/", fileServer))
 
-	http.HandleFunc("/config", getConfig)
+	http.HandleFunc("/api/config", handleConfig)
+	http.HandleFunc("/api/switch", handleSwitch)
 
 	log.Println("Starting server on Port: " + port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
@@ -24,7 +25,7 @@ func startServer() {
 	}
 }
 
-func getConfig(w http.ResponseWriter, r *http.Request) {
+func handleConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		w.Header().Set("Content-Type", "application/json")
 
