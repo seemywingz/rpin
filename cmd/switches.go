@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -15,7 +16,7 @@ type Switch struct {
 	Pin    *GPIOPin
 }
 
-var switches = []Switch{}
+var switches = make(map[string]Switch)
 
 func initSwitches() {
 	switchConfigs := viper.Get("switches").([]interface{})
@@ -50,7 +51,7 @@ func initSwitches() {
 			sw.Pin.Off()
 		}
 
-		switches = append(switches, sw)
+		switches[name] = sw
 	}
 
 	// Optionally, print out the initialized switches for debugging purposes
@@ -64,5 +65,41 @@ func handleSwitch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
+		// Parse the request body
+		var req struct {
+			Name string `json:"name"`
+			On   bool   `json:"on"`
+		}
+
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			http.Error(w, "Failed to parse JSON", http.StatusBadRequest)
+			log.Printf("Failed to parse JSON: %v", err)
+			return
+		}
+
+		// Find the switch by name
+		sw, ok := switches[req.Name]
+		if !ok {
+			http.Error(w, "Switch not found", http.StatusNotFound)
+			log.Printf("Switch not found: %s", req.Name)
+			return
+		}
+
+		// Toggle the switch
+		if req.On {
+			sw.Pin.On()
+		} else {
+			sw.Pin.Off()
+		}
+
+		// Update the switch state
+		sw.On = req.On
+		switches[req.Name] = sw
+
+		// Write a response
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Switch toggled"))
+
 	}
 }
