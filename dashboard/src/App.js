@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import SystemSettings from './settings/SystemSettings';
-import BarsSettings from './settings/BarsSettings';
-import GameOfLifeSettings from './settings/GameOfLifeSettings';
-import MatrixSettings from './settings/MatrixSettings';
-import WaveformSetting from './settings/WaveformSettings';
-import BirdsSetting from './settings/BirdsSettings';
-import CirclesSetting from './settings/CirclesSetting';
-import StarPulseSetting from './settings/StarPulseSettings';
-import StarFieldSettings from './settings/StarFieldSettings';
-import TemperatureSetting from './settings/TemperatureSettings';
-import MotionSettings from './settings/MotionSettings';
-import TextSettings from './settings/TextSettings';
 
 var defaultConfig = {
   "version": "1.0.0",
@@ -97,29 +86,7 @@ function App() {
 
   const renderSetting = () => {
     switch (selectedSetting) {
-      case 'bars':
-        return <BarsSettings config={config} updateConfig={updateConfig} />;
-      case 'birds':
-        return <BirdsSetting config={config} updateConfig={updateConfig} />;
-      case 'circles':
-        return <CirclesSetting config={config} updateConfig={updateConfig} />;
-      case 'gameOfLife':
-        return <GameOfLifeSettings config={config} updateConfig={updateConfig} />;
-      case 'matrix':
-        return <MatrixSettings config={config} updateConfig={updateConfig} />;
-      case 'motion':
-        return <MotionSettings config={config} updateConfig={updateConfig} />;
-      case 'starField':
-        return <StarFieldSettings config={config} updateConfig={updateConfig} />;
-      case 'starPulse':
-        return <StarPulseSetting config={config} updateConfig={updateConfig} />;
-      case 'text':
-        return <TextSettings config={config} updateConfig={updateConfig} />;
-      case 'temperature':
-        return <TemperatureSetting config={config} updateConfig={updateConfig} />;
-      case 'waveform':
-        return <WaveformSetting config={config} updateConfig={updateConfig} />;
-      case 'wifi':
+      case 'system':
         return <SystemSettings config={config} updateConfig={updateConfig} saveConfig={saveConfig} />;
       case 'about':
         return <div class="setting" id="about-settings">
@@ -151,18 +118,7 @@ function App() {
           value={selectedSetting}
           onChange={(e) => setSelectedSetting(e.target.value)}
         >
-          <option value="bars">Bars</option>
-          <option value="birds">Birds</option>
-          <option value="circles">Circles</option>
-          <option value="gameOfLife">Game of Life</option>
-          <option value="matrix">Matrix</option>
-          <option value="motion">Motion</option>
-          <option value="starPulse">Star Pulse</option>
-          <option value="starField">Star Field</option>
-          <option value="text">Text</option>
-          <option value="temperature">Temperature</option>
-          <option value="waveform">Waveform</option>
-          <option value="wifi">System</option>
+          <option value="system">System</option>
           <option value="about">About</option>
         </select>
       </div>
