@@ -9,10 +9,10 @@ import (
 )
 
 type Switch struct {
-	Name    string
-	Enabled bool
-	PinNum  int
-	Pin     *GPIOPin
+	Name   string
+	On     bool
+	PinNum int
+	Pin    *GPIOPin
 }
 
 var switches = []Switch{}
@@ -27,7 +27,7 @@ func initSwitches() {
 		// Extract the pin number, name, and on status
 		pinNum := int(switchConfig["pin"].(float64)) // Viper may interpret numbers as float64
 		name := switchConfig["name"].(string)
-		enabled := switchConfig["on"].(bool)
+		on := switchConfig["on"].(bool)
 
 		// Create a new GPIO pin for the switch
 		pin, err := NewGPIOPin(pinNum)
@@ -38,10 +38,16 @@ func initSwitches() {
 
 		// Create the Switch object and append it to the switches slice
 		sw := Switch{
-			Name:    name,
-			Enabled: enabled,
-			PinNum:  pinNum,
-			Pin:     pin,
+			Name:   name,
+			On:     on,
+			PinNum: pinNum,
+			Pin:    pin,
+		}
+
+		if sw.On {
+			sw.Pin.On()
+		} else {
+			sw.Pin.Off()
 		}
 
 		switches = append(switches, sw)
@@ -49,7 +55,7 @@ func initSwitches() {
 
 	// Optionally, print out the initialized switches for debugging purposes
 	for _, sw := range switches {
-		fmt.Printf("Initialized switch: %s, Enabled: %v, Pin: %d\n", sw.Name, sw.Enabled, sw.PinNum)
+		fmt.Printf("Initialized switch: %s, on: %v, Pin: %d\n", sw.Name, sw.on, sw.PinNum)
 	}
 }
 
