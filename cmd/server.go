@@ -16,12 +16,33 @@ func startServer() {
 	fileServer := http.FileServer(dir)
 	http.Handle("/", http.StripPrefix("/", fileServer))
 
-	http.HandleFunc("/api/config", handleConfig)
-	http.HandleFunc("/api/switch", handleSwitch)
+	http.HandleFunc("/api/config", corsMiddleware(handleConfig))
+	http.HandleFunc("/api/switch", corsMiddleware(handleSwitch))
 
 	log.Println("Starting server on Port: " + port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
+	}
+}
+
+// Add a CORS middleware function
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers
+		hostname := viper.GetString("hostname")
+		devport := viper.GetString("devport")
+		w.Header().Set("Access-Control-Allow-Origin", "http://"+hostname+":"+devport)
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Handle preflight requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Call the next handler
+		next(w, r)
 	}
 }
 

@@ -3,18 +3,18 @@ import { useState } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-export default function IOSwitch({ config }) {
-    const [isOn, setIsOn] = useState(config.on);
+export default function IOSwitch({ props, config }) {
+    const [isOn, setIsOn] = useState(props.on);
 
     const handleChange = (event) => {
         setIsOn(event.target.checked);
-        fetch('/api/switch', {
+        fetch("http://" + config.hostname + ":" + config.port + "/api/switch", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                name: config.name,
+                name: props.name,
                 on: event.target.checked,
             }),
         });
@@ -23,7 +23,7 @@ export default function IOSwitch({ config }) {
     return (
         <FormControlLabel
             labelPlacement="start"
-            label={config.name}
+            label={props.name}
             control={<Switch checked={isOn} onChange={handleChange} />}
             value={isOn}
         />

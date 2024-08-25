@@ -1,15 +1,17 @@
 {
+  "devport": 3000,
   "dir": "./srv",
+  "hostname": "10.0.0.59",
   "port": 8080,
   "switches": [
     {
       "name": "Light 1",
-      "on": false,
+      "on": true,
       "pin": 16
     },
     {
       "name": "Light 2",
-      "on": false,
+      "on": true,
       "pin": 12
     }
   ]

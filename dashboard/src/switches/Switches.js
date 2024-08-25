@@ -12,7 +12,7 @@ export default function Switches({ config }) {
         var sw = config.switches[key];
         console.log("Switch", sw,);
         switches.push(
-            <IOSwitch key={key} config={sw} />
+            <IOSwitch key={key} props={sw} config={config} />
         );
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import SettingsSelector from './selectors/SettingsSelector';
+import Container from '@mui/material/Container';
 import Setting from './settings/Setting';
 import Switches from './switches/Switches';
 
@@ -32,18 +32,19 @@ const theme = createTheme({
 });
 
 var defaultConfig = {
-  "port": 8080,
+  "hostname": "10.0.0.59",
   "dir": "./srv",
+  "port": 8080,
   "switches": [
     {
-      "name": "light",
-      "pin": 12,
-      "on": true
+      "name": "Light 1",
+      "on": false,
+      "pin": 16
     },
     {
-      "name": "fan",
-      "pin": 18,
-      "on": false
+      "name": "Light 2",
+      "on": false,
+      "pin": 12
     }
   ]
 }
@@ -76,7 +77,9 @@ function App() {
         height: '9vh',
         zIndex: 1000,
       }} />
-      <Switches config={config} />
+      <Container>
+        <Switches config={config} />
+      </Container>
     </ThemeProvider>
   );
 }
