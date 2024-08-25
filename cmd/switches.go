@@ -7,13 +7,14 @@ import (
 
 	"github.com/seemywingz/gotoolbox/gtb"
 	"github.com/spf13/viper"
+	"github.com/stianeikeland/go-rpio/v4"
 )
 
 type Switch struct {
 	Name   string
 	On     bool
 	PinNum int
-	Pin    *GPIOPin
+	Pin    *rpio.Pin
 }
 
 var switches = make(map[string]Switch)
@@ -31,7 +32,7 @@ func initSwitches() {
 		on := switchConfig["on"].(bool)
 
 		// Create a new GPIO pin for the switch
-		pin, err := NewGPIOPin(pinNum)
+		pin, err := NewGPIOPin(pinNum, rpio.Output)
 		if err != nil {
 			gtb.EoE(err) // Handle error gracefully
 			continue
@@ -46,9 +47,9 @@ func initSwitches() {
 		}
 
 		if sw.On {
-			sw.Pin.On()
+			sw.Pin.High()
 		} else {
-			sw.Pin.Off()
+			sw.Pin.Low()
 		}
 
 		switches[name] = sw
@@ -88,9 +89,9 @@ func handleSwitch(w http.ResponseWriter, r *http.Request) {
 
 		// Toggle the switch
 		if req.On {
-			sw.Pin.On()
+			sw.Pin.High()
 		} else {
-			sw.Pin.Off()
+			sw.Pin.Low()
 		}
 
 		// Update the switch state

@@ -6,8 +6,7 @@ require (
 	github.com/seemywingz/gotoolbox v0.0.0-20240824054339-d898747f78df
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	periph.io/x/conn/v3 v3.7.1
-	periph.io/x/host/v3 v3.8.2
+	github.com/stianeikeland/go-rpio/v4 v4.6.0
 )
 
 require (
@@ -17,7 +16,6 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/jonboulle/clockwork v0.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -31,7 +29,6 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/warthog618/gpio v1.0.1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
