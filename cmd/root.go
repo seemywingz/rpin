@@ -20,7 +20,6 @@ var rootCmd = &cobra.Command{
 	Long:  `	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		initSwitches()
-		servoMove()
 		startServer()
 	},
 }

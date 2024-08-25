@@ -2,40 +2,33 @@ package cmd
 
 import (
 	"math"
-	"time"
 
-	"github.com/seemywingz/gotoolbox/gtb"
 	rpio "github.com/stianeikeland/go-rpio/v4"
 )
 
-func servoMove() {
-	pin, err := NewGPIOPin(19, rpio.Pwm)
-	gtb.EoE(err)
+type Servo struct {
+	pin          rpio.Pin
+	maxDutyCycle uint32
+}
 
-	// Set the PWM frequency to 50Hz (20ms period)
-	// 50Hz -> period = 20ms
-	pin.Freq(50)
-
-	// Duty cycle settings for servo control
-	const maxDutyCycle = 1024
-
-	// Convert duty cycle to integer with rounding
-	middleDuty := uint32(math.Round(7.5 * float64(maxDutyCycle) / 100))
-	maxDuty := uint32(math.Round(12.5 * float64(maxDutyCycle) / 100))
-	minDuty := uint32(math.Round(2.5 * float64(maxDutyCycle) / 100))
-
-	// Move servo to different positions
-	for i := 0; i < 5; i++ {
-		// Middle position (~7.5% duty cycle)
-		pin.DutyCycle(middleDuty, maxDutyCycle)
-		time.Sleep(2 * time.Second)
-
-		// Maximum position (~12.5% duty cycle)
-		pin.DutyCycle(maxDuty, maxDutyCycle)
-		time.Sleep(2 * time.Second)
-
-		// Minimum position (~2.5% duty cycle)
-		pin.DutyCycle(minDuty, maxDutyCycle)
-		time.Sleep(2 * time.Second)
+// NewServo creates a new servo instance on the specified GPIO pin.
+func NewServo(pinNum int) (*Servo, error) {
+	pin, err := NewGPIOPin(pinNum, rpio.Pwm)
+	if err != nil {
+		return nil, err
 	}
+
+	// Initialize the servo
+	pin.Freq(50) // 50Hz for servos
+
+	return &Servo{
+		pin:          *pin,
+		maxDutyCycle: 1024,
+	}, nil
+}
+
+// Move to a specific angle (0 to 180 degrees)
+func (s *Servo) Move(angle float64) {
+	duty := (2.5 + (angle/180.0)*10.0) * float64(s.maxDutyCycle) / 100.0
+	s.pin.DutyCycle(uint32(math.Round(duty)), s.maxDutyCycle)
 }
