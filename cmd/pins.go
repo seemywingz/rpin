@@ -49,16 +49,22 @@ func initPins() {
 			Pin:  pin,
 		}
 
-		if p.On {
-			p.Pin.High()
-		} else {
-			p.Pin.Low()
-		}
+		togglePin(p)
 
 		pins[name] = p
 		log.Printf("Initialized switch: %s, on: %v, Pin: %d\n", p.Name, p.On, p.Num)
 	}
 
+}
+
+func togglePin(pin Pin) {
+	if pin.Mode == "out" {
+		if pin.On {
+			pin.Pin.High()
+		} else {
+			pin.Pin.Low()
+		}
+	}
 }
 
 func getMode(mode string) rpio.Mode {
@@ -88,6 +94,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			Name string `json:"name"`
 			On   bool   `json:"on"`
 			Num  int    `json:"num"`
+			Mode string `json:"mode"`
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&req)
@@ -105,15 +112,9 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Toggle the switch
-		if req.On {
-			p.Pin.High()
-		} else {
-			p.Pin.Low()
-		}
-
 		p.On = req.On
 		pins[req.Name] = p
+		togglePin(p)
 
 		// format the config to save to the config file
 		var pinConfigs []interface{}
