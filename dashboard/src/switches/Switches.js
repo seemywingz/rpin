@@ -10,7 +10,7 @@ export default function Switches({ config }) {
 
     for (var key in config.switches) {
         var sw = config.switches[key];
-        console.log("Switch", sw);
+        console.log("Switch", sw,);
         switches.push(
             <IOSwitch key={key} config={sw} />
         );

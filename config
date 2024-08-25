@@ -4,12 +4,12 @@
   "switches": [
     {
       "name": "Light 2",
-      "on": true,
+      "on": false,
       "pin": 12
     },
     {
       "name": "Light 1",
-      "on": true,
+      "on": false,
       "pin": 18
     }
   ]
