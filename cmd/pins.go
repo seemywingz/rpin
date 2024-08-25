@@ -131,6 +131,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		if ok { // Ensure the pin exists before trying to delete it
 			p.GPIO.Low()
 			delete(pins, req.Num)
+			delete(viper.Get("pins").(map[string]interface{}), strconv.Itoa(req.Num))
 			log.Printf("Pin deleted: %d", req.Num)
 		} else {
 			log.Printf("Attempted to delete a non-existing pin: %d", req.Num)
@@ -151,7 +152,6 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove the deleted pin from Viper's internal config map
-	delete(viper.Get("pins").(map[string]interface{}), strconv.Itoa(req.Num))
 	viper.Set("pins", updatedConfig)
 
 	// Write the updated configuration back to the file
