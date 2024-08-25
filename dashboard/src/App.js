@@ -71,6 +71,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <Setting content={"VMON"} sx={{
         backgroundColor: '#333',
+        color: 'primary.main',
         fontSize: '3em',
         height: '9vh',
         zIndex: 1000,

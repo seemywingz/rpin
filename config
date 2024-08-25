@@ -3,12 +3,12 @@
   "port": 8080,
   "switches": [
     {
-      "name": "light",
+      "name": "Light 2",
       "on": true,
       "pin": 12
     },
     {
-      "name": "fan",
+      "name": "Light 1",
       "on": true,
       "pin": 18
     }
