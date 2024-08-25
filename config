@@ -4,14 +4,16 @@
   "hostname": "10.0.0.59",
   "pins": [
     {
-      "name": "Light 1",
-      "on": false,
-      "pin": 16
+      "mode": "out",
+      "name": "Light 2",
+      "num": 12,
+      "on": false
     },
     {
-      "name": "Light 2",
-      "on": true,
-      "pin": 12
+      "mode": "out",
+      "name": "Light 1",
+      "num": 16,
+      "on": false
     }
   ],
   "port": 8080

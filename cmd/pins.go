@@ -14,6 +14,7 @@ type Pin struct {
 	Name string
 	On   bool
 	Num  int
+	Mode string
 	Pin  *rpio.Pin
 }
 
@@ -27,12 +28,13 @@ func initPins() {
 		pinConfig := config.(map[string]interface{})
 
 		// Extract the pin number, name, and on status
-		pinNum := int(pinConfig["pin"].(float64)) // Viper may interpret numbers as float64
+		num := int(pinConfig["num"].(float64)) // Viper may interpret numbers as float64
 		name := pinConfig["name"].(string)
 		on := pinConfig["on"].(bool)
+		mode := pinConfig["mode"].(string)
 
 		// Create a new GPIO pin for the switch
-		pin, err := NewGPIOPin(pinNum, rpio.Output)
+		pin, err := NewGPIOPin(num, getMode(mode))
 		if err != nil {
 			gtb.EoE(err) // Handle error gracefully
 			continue
@@ -42,7 +44,8 @@ func initPins() {
 		p := Pin{
 			Name: name,
 			On:   on,
-			Num:  pinNum,
+			Num:  num,
+			Mode: mode,
 			Pin:  pin,
 		}
 
@@ -58,6 +61,25 @@ func initPins() {
 
 }
 
+func getMode(mode string) rpio.Mode {
+	switch mode {
+	case "input":
+	case "in":
+		return rpio.Input
+	case "output":
+	case "out":
+		return rpio.Output
+	case "pwm":
+		return rpio.Pwm
+	case "spi":
+		return rpio.Spi
+	case "clock":
+		return rpio.Clock
+
+	}
+	return rpio.Output
+}
+
 func handlePin(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
@@ -65,6 +87,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Name string `json:"name"`
 			On   bool   `json:"on"`
+			Num  int    `json:"num"`
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&req)
@@ -98,7 +121,8 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			pinConfigs = append(pinConfigs, map[string]interface{}{
 				"name": pin.Name,
 				"on":   pin.On,
-				"pin":  pin.Num,
+				"num":  pin.Num,
+				"mode": pin.Mode,
 			})
 		}
 

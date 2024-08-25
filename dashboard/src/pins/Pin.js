@@ -16,6 +16,8 @@ export default function Pin({ props, config }) {
             body: JSON.stringify({
                 name: props.name,
                 on: event.target.checked,
+                num: props.pin,
+                mode: props.mode,
             }),
         });
     };
