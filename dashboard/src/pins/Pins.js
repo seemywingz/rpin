@@ -3,22 +3,19 @@ import Pin from "./Pin";
 
 export default function Pins({ config }) {
     if (!config || !config.pins) {
-        return null; // Return null if config or config.switches is not available
+        return null; // Return null if config or config.pins is not available
     }
 
-    const switches = [];
-
-    for (var key in config.pins) {
-        var sw = config.pins[key];
-        console.log("Switch", sw,);
-        switches.push(
-            <Pin key={key} props={sw} config={config} />
-        );
-    }
+    // Map over the keys of the pins object
+    const pins = Object.keys(config.pins).map((key) => {
+        const pin = config.pins[key];
+        console.log("Pin", pin);
+        return <Pin key={key} name={key} props={pin} config={config} />;
+    });
 
     return (
         <div>
-            {switches}
+            {pins}
         </div>
     );
 }

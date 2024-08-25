@@ -11,25 +11,24 @@ import (
 )
 
 type Pin struct {
-	Name string
 	On   bool
 	Num  int
 	Mode string
-	Pin  *rpio.Pin
+	GPIO *rpio.Pin
 }
 
 var pins = make(map[string]Pin)
 
 func initPins() {
-	pinConfigs := viper.Get("pins").([]interface{})
+	// Get the pins from the Viper configuration
+	pinConfigs := viper.GetStringMap("pins")
 
-	for _, config := range pinConfigs {
+	for name, config := range pinConfigs {
 		// Assert the config to the appropriate type (map[string]interface{})
 		pinConfig := config.(map[string]interface{})
 
-		// Extract the pin number, name, and on status
+		// Extract the pin number, on status, and mode
 		num := int(pinConfig["num"].(float64)) // Viper may interpret numbers as float64
-		name := pinConfig["name"].(string)
 		on := pinConfig["on"].(bool)
 		mode := pinConfig["mode"].(string)
 
@@ -40,40 +39,36 @@ func initPins() {
 			continue
 		}
 
-		// Create the Switch object and append it to the switches slice
+		// Create the Pin object and add it to the pins map
 		p := Pin{
-			Name: name,
 			On:   on,
 			Num:  num,
 			Mode: mode,
-			Pin:  pin,
+			GPIO: pin,
 		}
 
 		togglePin(p)
 
 		pins[name] = p
-		log.Printf("Initialized switch: %s, on: %v, Pin: %d\n", p.Name, p.On, p.Num)
+		log.Printf("Initialized pin: %s, on: %v, Pin: %d\n", name, p.On, p.Num)
 	}
-
 }
 
 func togglePin(pin Pin) {
 	if pin.Mode == "out" {
 		if pin.On {
-			pin.Pin.High()
+			pin.GPIO.High()
 		} else {
-			pin.Pin.Low()
+			pin.GPIO.Low()
 		}
 	}
 }
 
 func getMode(mode string) rpio.Mode {
 	switch mode {
-	case "input":
-	case "in":
+	case "input", "in":
 		return rpio.Input
-	case "output":
-	case "out":
+	case "output", "out":
 		return rpio.Output
 	case "pwm":
 		return rpio.Pwm
@@ -81,7 +76,6 @@ func getMode(mode string) rpio.Mode {
 		return rpio.Spi
 	case "clock":
 		return rpio.Clock
-
 	}
 	return rpio.Output
 }
@@ -104,35 +98,33 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Find the switch by name
+		// Find the pin by name
 		p, ok := pins[req.Name]
 		if !ok {
-			http.Error(w, "Switch not found", http.StatusNotFound)
-			log.Printf("Switch not found: %s", req.Name)
+			http.Error(w, "Pin not found", http.StatusNotFound)
+			log.Printf("Pin not found: %s", req.Name)
 			return
 		}
 
+		// Update the pin state
 		p.On = req.On
-		pins[req.Name] = p
 		togglePin(p)
+		pins[req.Name] = p
 
-		// format the config to save to the config file
-		var pinConfigs []interface{}
-		for _, pin := range pins {
-			pinConfigs = append(pinConfigs, map[string]interface{}{
-				"name": pin.Name,
-				"on":   pin.On,
-				"num":  pin.Num,
+		// Update the config file with the modified pin settings
+		updatedConfig := make(map[string]interface{})
+		for name, pin := range pins {
+			updatedConfig[name] = map[string]interface{}{
 				"mode": pin.Mode,
-			})
+				"num":  pin.Num,
+				"on":   pin.On,
+			}
 		}
-
-		// Update the config file
-		viper.Set("pins", pinConfigs)
+		viper.Set("pins", updatedConfig)
 		viper.WriteConfig()
 
 		// Write a response
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Switch toggled"))
+		w.Write([]byte("Pin toggled"))
 	}
 }

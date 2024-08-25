@@ -29,23 +29,23 @@ const theme = createTheme({
 });
 
 const defaultConfig = {
-  devport: 3000,
-  dir: "./srv",
-  hostname: "10.0.0.59",
-  pins: [
-    {
-      name: "Light 1",
-      on: false,
-      pin: 16,
+  "devport": 3000,
+  "dir": "./srv",
+  "hostname": "10.0.0.59",
+  "port": 8080,
+  "pins": {
+    "light": {
+      "mode": "out",
+      "num": 12,
+      "on": false
     },
-    {
-      name: "Light 2",
-      on: false,
-      pin: 12,
-    },
-  ],
-  port: 8080,
-};
+    "fan": {
+      "mode": "out",
+      "num": 16,
+      "on": false
+    }
+  }
+}
 
 function App() {
   const [config, setConfig] = useState(null); // Initialize state with null
