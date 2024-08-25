@@ -54,6 +54,6 @@ func (p *GPIOPin) SetOutput() {
 	p.Pin.Out(gpio.Low)
 }
 
-func (p *GPIOPin) PWM(duty gpio.Duty, period physic.Frequency) {
-	p.Pin.PWM(duty, period)
+func (p *GPIOPin) PWM(duty gpio.Duty, period physic.Frequency) error {
+	return p.Pin.PWM(duty, period)
 }
