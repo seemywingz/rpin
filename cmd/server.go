@@ -17,7 +17,7 @@ func startServer() {
 	http.Handle("/", http.StripPrefix("/", fileServer))
 
 	http.HandleFunc("/api/config", corsMiddleware(handleConfig))
-	http.HandleFunc("/api/switch", corsMiddleware(handlePin))
+	http.HandleFunc("/api/pin", corsMiddleware(handlePin))
 
 	log.Println("Starting server on Port: " + port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

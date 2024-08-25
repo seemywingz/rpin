@@ -3,12 +3,12 @@ import { useState } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-export default function IOSwitch({ props, config }) {
+export default function Pin({ props, config }) {
     const [isOn, setIsOn] = useState(props.on);
 
     const handleChange = (event) => {
         setIsOn(event.target.checked);
-        fetch("http://" + config.hostname + ":" + config.port + "/api/switch", {
+        fetch("http://" + config.hostname + ":" + config.port + "/api/pin", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

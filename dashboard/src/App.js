@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Setting from './settings/Setting';
-import Switches from './switches/Switches';
+import Pins from './pins/Pins';
 
 // Define the theme
 const theme = createTheme({
@@ -31,40 +31,25 @@ const theme = createTheme({
 
 });
 
-var defaultConfig = {
-  "hostname": "10.0.0.59",
-  "dir": "./srv",
-  "port": 8080,
-  "switches": [
-    {
-      "name": "Light 1",
-      "on": false,
-      "pin": 16
-    },
-    {
-      "name": "Light 2",
-      "on": false,
-      "pin": 12
-    }
-  ]
-}
 
 function App() {
-  var [config, setConfig] = useState(null);
+  var [config, setConfig] = useState('');
+  var hostname = "10.0.0.59"
+  var port = 8080
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log("Using default configuration");
-      setConfig(defaultConfig);
-    } else {
-      fetch('/api/config')
-        .then((response) => response.json())
-        .then((data) => {
-          setConfig(data);
-          console.log("config", data);
-        })
-        .catch((error) => console.error('Error loading configuration:', error));
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //   console.log("Using default configuration");
+    //   setConfig(defaultConfig);
+    // } else {
+    fetch("http://" + hostname + ":" + port + "/api/config")
+      .then((response) => response.json())
+      .then((data) => {
+        setConfig(data);
+        console.log("config", data);
+      })
+      .catch((error) => console.error('Error loading configuration:', error));
+    // }
   }, []);
 
 
@@ -78,7 +63,7 @@ function App() {
         zIndex: 1000,
       }} />
       <Container>
-        <Switches config={config} />
+        <Pins config={config} />
       </Container>
     </ThemeProvider>
   );

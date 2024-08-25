@@ -5,12 +5,12 @@
   "pins": [
     {
       "name": "Light 1",
-      "on": true,
+      "on": false,
       "pin": 16
     },
     {
       "name": "Light 2",
-      "on": true,
+      "on": false,
       "pin": 12
     }
   ],
