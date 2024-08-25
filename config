@@ -7,11 +7,6 @@
       "mode": "out",
       "name": "",
       "on": true
-    },
-    "16": {
-      "mode": "out",
-      "name": "light",
-      "on": false
     }
   },
   "port": 8080

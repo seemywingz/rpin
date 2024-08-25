@@ -111,25 +111,33 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 
 	// Find the pin by its GPIO number
 	p, ok := pins[req.Num]
-	if !ok {
+	if !ok && r.Method != http.MethodDelete {
 		http.Error(w, "Pin not found", http.StatusNotFound)
 		log.Printf("Pin not found: %d", req.Num)
 		return
 	}
 
-	if r.Method == http.MethodPost {
+	switch r.Method {
+	case http.MethodPost:
 		// Update the pin state
 		p.On = req.On
 		p.Name = req.Name
 		p.Mode = req.Mode
 		togglePin(p)
 		pins[req.Num] = p
-	}
-
-	if r.Method == http.MethodDelete {
-		// reset pin to default state
-		p.GPIO.Low()
-		delete(pins, req.Num)
+		log.Printf("Pin updated: %v", p)
+	case http.MethodDelete:
+		// Reset pin to default state and delete it
+		if ok { // Ensure the pin exists before trying to delete it
+			p.GPIO.Low()
+			delete(pins, req.Num)
+			log.Printf("Pin deleted: %d", req.Num)
+		} else {
+			log.Printf("Attempted to delete a non-existing pin: %d", req.Num)
+		}
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
 	// Update the config file with the modified pin settings
@@ -141,8 +149,17 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			"on":   pin.On,
 		}
 	}
+
+	// Remove the deleted pin from Viper's internal config map
+	delete(viper.Get("pins").(map[string]interface{}), strconv.Itoa(req.Num))
 	viper.Set("pins", updatedConfig)
-	viper.WriteConfig()
+
+	// Write the updated configuration back to the file
+	if err := viper.WriteConfig(); err != nil {
+		log.Printf("Failed to write config: %v", err)
+		http.Error(w, "Failed to update config", http.StatusInternalServerError)
+		return
+	}
 
 	// Write a response
 	w.WriteHeader(http.StatusOK)

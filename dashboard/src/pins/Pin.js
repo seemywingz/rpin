@@ -5,7 +5,7 @@ import { Container, IconButton, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function Pin({ pinNum, props, config }) {
+export default function Pin({ pinNum, props, config, onDelete }) {
     const [isOn, setIsOn] = useState(props.on);
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -49,6 +49,12 @@ export default function Pin({ pinNum, props, config }) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(pinState),
+        }).then(response => {
+            if (response.ok && method === "DELETE") {
+                onDelete(pinNum); // Call the onDelete function passed as a prop
+            }
+        }).catch(error => {
+            console.error('Error deleting pin:', error);
         });
     };
 
