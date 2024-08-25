@@ -3,15 +3,15 @@
   "dir": "./srv",
   "hostname": "10.0.0.59",
   "pins": {
-    "fan": {
+    "12": {
       "mode": "out",
-      "num": 16,
-      "on": true
+      "name": "",
+      "on": false
     },
-    "light": {
+    "16": {
       "mode": "out",
-      "num": 12,
-      "on": true
+      "name": "light",
+      "on": false
     }
   },
   "port": 8080

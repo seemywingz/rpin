@@ -10,7 +10,7 @@ export default function Pins({ config }) {
     const pins = Object.keys(config.pins).map((key) => {
         const pin = config.pins[key];
         console.log("Pin", pin);
-        return <Pin key={key} name={key} props={pin} config={config} />;
+        return <Pin key={key} pinNum={key} props={pin} config={config} />;
     });
 
     return (

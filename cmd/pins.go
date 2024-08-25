@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/seemywingz/gotoolbox/gtb"
 	"github.com/spf13/viper"
@@ -13,44 +14,57 @@ import (
 type Pin struct {
 	On   bool
 	Num  int
+	Name string
 	Mode string
 	GPIO *rpio.Pin
 }
 
-var pins = make(map[string]Pin)
+var pins = make(map[int]Pin)
 
 func initPins() {
 	// Get the pins from the Viper configuration
 	pinConfigs := viper.GetStringMap("pins")
 
-	for name, config := range pinConfigs {
+	for numStr, config := range pinConfigs {
+		// Convert the string key to an integer pin number
+		num, err := strconv.Atoi(numStr)
+		if err != nil {
+			log.Printf("Invalid GPIO number: %s", numStr)
+			continue
+		}
+
 		// Assert the config to the appropriate type (map[string]interface{})
 		pinConfig := config.(map[string]interface{})
 
-		// Extract the pin number, on status, and mode
-		num := int(pinConfig["num"].(float64)) // Viper may interpret numbers as float64
+		// Extract the on status, mode, and name
 		on := pinConfig["on"].(bool)
 		mode := pinConfig["mode"].(string)
+		name := ""
+		if nameValue, ok := pinConfig["name"]; ok {
+			name = nameValue.(string)
+		}
 
 		// Create a new GPIO pin for the switch
-		pin, err := NewGPIOPin(num, getMode(mode))
+		gpioPin, err := NewGPIOPin(num, getMode(mode))
 		if err != nil {
 			gtb.EoE(err) // Handle error gracefully
 			continue
 		}
 
-		// Create the Pin object and add it to the pins map
+		// Create the Pin object and add it to the pins map indexed by the GPIO number
 		p := Pin{
 			On:   on,
 			Num:  num,
+			Name: name,
 			Mode: mode,
-			GPIO: pin,
+			GPIO: gpioPin,
 		}
 
 		togglePin(p)
 
-		pins[name] = p
-		log.Printf("Initialized pin: %s, on: %v, Pin: %d\n", name, p.On, p.Num)
+		// Store the Pin object in the map using the GPIO number as the key
+		pins[num] = p
+		log.Printf("Initialized pin: %s, on: %v, GPIO Number: %d\n", name, p.On, p.Num)
 	}
 }
 
@@ -98,25 +112,25 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Find the pin by name
-		p, ok := pins[req.Name]
+		// Find the pin by its GPIO number
+		p, ok := pins[req.Num]
 		if !ok {
 			http.Error(w, "Pin not found", http.StatusNotFound)
-			log.Printf("Pin not found: %s", req.Name)
+			log.Printf("Pin not found: %d", req.Num)
 			return
 		}
 
 		// Update the pin state
 		p.On = req.On
 		togglePin(p)
-		pins[req.Name] = p
+		pins[req.Num] = p
 
 		// Update the config file with the modified pin settings
 		updatedConfig := make(map[string]interface{})
-		for name, pin := range pins {
-			updatedConfig[name] = map[string]interface{}{
+		for num, pin := range pins {
+			updatedConfig[strconv.Itoa(num)] = map[string]interface{}{
 				"mode": pin.Mode,
-				"num":  pin.Num,
+				"name": pin.Name,
 				"on":   pin.On,
 			}
 		}

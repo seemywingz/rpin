@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-export default function Pin({ name, props, config }) {
+export default function Pin({ pinNum, props, config }) {
     const [isOn, setIsOn] = useState(props.on);
 
     const handleChange = (event) => {
@@ -13,9 +13,9 @@ export default function Pin({ name, props, config }) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                name: name,  // use the key name here
+                name: props.name,  // use the name property
                 on: event.target.checked,
-                num: props.num,
+                num: parseInt(pinNum, 10),  // ensure the num is sent as an integer
                 mode: props.mode,
             }),
         });
@@ -24,7 +24,7 @@ export default function Pin({ name, props, config }) {
     return (
         <FormControlLabel
             labelPlacement="top"
-            label={name}  // Display the key name as the label
+            label={props.name || pinNum}  // Display the name as the label
             control={<Switch checked={isOn} onChange={handleChange} />}
             value={isOn}
         />
