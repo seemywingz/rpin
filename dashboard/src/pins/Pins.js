@@ -16,6 +16,29 @@ export default function Pins({ config }) {
         setPins(updatedPins);
     };
 
+    const handleUpdatePin = (pinState, method) => {
+        fetch(`http://${config.hostname}:${config.port}/api/pin`, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pinState),
+        }).then(response => {
+            if (response.ok) {
+                if (method === "DELETE") {
+                    handleDeletePin(pinState.num);
+                } else if (method === "POST") {
+                    setPins(prevPins => ({
+                        ...prevPins,
+                        [pinState.num]: pinState,
+                    }));
+                }
+            }
+        }).catch(error => {
+            console.error('Error updating pin:', error);
+        });
+    };
+
     if (!pins || Object.keys(pins).length === 0) {
         return null; // Return null if pins are not available or empty
     }
@@ -23,8 +46,7 @@ export default function Pins({ config }) {
     // Map over the keys of the pins object
     const pinElements = Object.keys(pins).map((key) => {
         const pin = pins[key];
-        console.log("Pin", pin);
-        return <Pin key={key} pinNum={key} props={pin} config={config} onDelete={handleDeletePin} />;
+        return <Pin key={key} pinNum={key} props={pin} onUpdate={handleUpdatePin} />;
     });
 
     return (

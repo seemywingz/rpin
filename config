@@ -3,9 +3,9 @@
   "dir": "./srv",
   "hostname": "10.0.0.59",
   "pins": {
-    "12": {
+    "16": {
       "mode": "out",
-      "name": "",
+      "name": "Light",
       "on": true
     }
   },
