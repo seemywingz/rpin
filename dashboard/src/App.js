@@ -28,14 +28,13 @@ const theme = createTheme({
   },
 });
 
-
 function App() {
-  const [config, setConfig] = useState(null); // Initialize state with null
-  const hostname = process.env.API_HOST || "10.0.0.59"; // Fix typo and add fallback
-  const port = process.env.API_PORT || 8080;
+  const [config, setConfig] = useState(null);
+  const port = process.env.API_PORT | 8080;
 
   useEffect(() => {
-    fetch(`http://${hostname}:${port}/api/config`)
+
+    fetch(`http://localhost:${port}/api/config`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -47,7 +46,7 @@ function App() {
         console.log("Config:", data);
       })
       .catch((error) => console.error('Error loading configuration:', error));
-  }, [hostname, port]);
+  }, [port]);
 
   return (
     <ThemeProvider theme={theme}>

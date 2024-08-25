@@ -28,12 +28,33 @@ func startServer() {
 // Add a CORS middleware function
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
+		// Allowed origins
 		hostname := viper.GetString("hostname")
 		devport := viper.GetString("devport")
-		w.Header().Set("Access-Control-Allow-Origin", "http://"+hostname+":"+devport)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		allowedOrigins := []string{
+			"http://" + hostname + ":" + devport,
+			"http://localhost:" + devport,
+			"http://127.0.0.1:" + devport,
+		}
+
+		// Get the origin of the current request
+		origin := r.Header.Get("Origin")
+
+		// Check if the origin is allowed
+		allowOrigin := false
+		for _, o := range allowedOrigins {
+			if origin == o {
+				allowOrigin = true
+				break
+			}
+		}
+
+		// Set CORS headers if the origin is allowed
+		if allowOrigin {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		}
 
 		// Handle preflight requests
 		if r.Method == http.MethodOptions {

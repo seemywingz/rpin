@@ -64,7 +64,7 @@ func initPins() {
 
 		// Store the Pin object in the map using the GPIO number as the key
 		pins[num] = p
-		log.Printf("Initialized pin: %s, on: %v, GPIO Number: %d\n", name, p.On, p.Num)
+		log.Printf("Initialized Pin: %s, on: %v, gpio: %d\n", name, p.On, p.Num)
 	}
 }
 
