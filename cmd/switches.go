@@ -62,8 +62,6 @@ func initSwitches() {
 }
 
 func handleSwitch(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-	}
 
 	if r.Method == http.MethodPost {
 		// Parse the request body
@@ -115,6 +113,5 @@ func handleSwitch(w http.ResponseWriter, r *http.Request) {
 		// Write a response
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Switch toggled"))
-
 	}
 }
