@@ -5,7 +5,7 @@
   "pins": [
     {
       "name": "Light 1",
-      "on": true,
+      "on": false,
       "pin": 16
     },
     {
