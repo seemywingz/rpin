@@ -10,19 +10,16 @@ export default function Pin({ pinNum, props, config }) {
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleChange = (event) => {
-        setIsOn(event.target.checked);
-        fetch(`http://${config.hostname}:${config.port}/api/pin`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: props.name,
-                on: event.target.checked,
-                num: parseInt(pinNum, 10),
-                mode: props.mode,
-            }),
-        });
+        const newIsOn = event.target.checked;
+        setIsOn(newIsOn); // Update local state
+        const pinState = {
+            on: newIsOn,
+            name: props.name,
+            num: parseInt(pinNum, 10),
+            mode: props.mode,
+        };
+        // Send the entire state to the server with the POST method
+        sendPinState(pinState, "POST");
     };
 
     const handleMenuOpen = (event) => {
@@ -34,9 +31,25 @@ export default function Pin({ pinNum, props, config }) {
     };
 
     const handleDelete = () => {
-        // Handle the delete action here
-        console.log(`Deleting pin ${pinNum}`);
+        const pinState = {
+            on: isOn,
+            name: props.name,
+            num: parseInt(pinNum, 10),
+            mode: props.mode,
+        };
+        // Send the DELETE request to the server
+        sendPinState(pinState, "DELETE");
         handleMenuClose();
+    };
+
+    const sendPinState = (pinState, method) => {
+        fetch(`http://${config.hostname}:${config.port}/api/pin`, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pinState),
+        });
     };
 
     return (
@@ -64,7 +77,7 @@ export default function Pin({ pinNum, props, config }) {
                 }}
             >
                 <SettingsIcon sx={{
-                    color: isOn ? 'primary.main' : 'secondary.light',
+                    color: isOn ? 'primary.dark' : 'secondary.light',
                 }} />
             </IconButton>
             <Menu

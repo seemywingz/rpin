@@ -95,50 +95,56 @@ func getMode(mode string) rpio.Mode {
 }
 
 func handlePin(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name string `json:"name"`
+		On   bool   `json:"on"`
+		Num  int    `json:"num"`
+		Mode string `json:"mode"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Failed to parse JSON", http.StatusBadRequest)
+		log.Printf("Failed to parse JSON: %v", err)
+		return
+	}
+
+	// Find the pin by its GPIO number
+	p, ok := pins[req.Num]
+	if !ok {
+		http.Error(w, "Pin not found", http.StatusNotFound)
+		log.Printf("Pin not found: %d", req.Num)
+		return
+	}
 
 	if r.Method == http.MethodPost {
-		// Parse the request body
-		var req struct {
-			Name string `json:"name"`
-			On   bool   `json:"on"`
-			Num  int    `json:"num"`
-			Mode string `json:"mode"`
-		}
-
-		err := json.NewDecoder(r.Body).Decode(&req)
-		if err != nil {
-			http.Error(w, "Failed to parse JSON", http.StatusBadRequest)
-			log.Printf("Failed to parse JSON: %v", err)
-			return
-		}
-
-		// Find the pin by its GPIO number
-		p, ok := pins[req.Num]
-		if !ok {
-			http.Error(w, "Pin not found", http.StatusNotFound)
-			log.Printf("Pin not found: %d", req.Num)
-			return
-		}
-
 		// Update the pin state
 		p.On = req.On
+		p.Name = req.Name
+		p.Mode = req.Mode
 		togglePin(p)
 		pins[req.Num] = p
-
-		// Update the config file with the modified pin settings
-		updatedConfig := make(map[string]interface{})
-		for num, pin := range pins {
-			updatedConfig[strconv.Itoa(num)] = map[string]interface{}{
-				"mode": pin.Mode,
-				"name": pin.Name,
-				"on":   pin.On,
-			}
-		}
-		viper.Set("pins", updatedConfig)
-		viper.WriteConfig()
-
-		// Write a response
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Pin toggled"))
 	}
+
+	if r.Method == http.MethodDelete {
+		// reset pin to default state
+		p.GPIO.Low()
+		delete(pins, req.Num)
+	}
+
+	// Update the config file with the modified pin settings
+	updatedConfig := make(map[string]interface{})
+	for num, pin := range pins {
+		updatedConfig[strconv.Itoa(num)] = map[string]interface{}{
+			"mode": pin.Mode,
+			"name": pin.Name,
+			"on":   pin.On,
+		}
+	}
+	viper.Set("pins", updatedConfig)
+	viper.WriteConfig()
+
+	// Write a response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Pin Updated"))
 }
