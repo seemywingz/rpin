@@ -8,6 +8,16 @@ export default function IOSwitch({ config }) {
 
     const handleChange = (event) => {
         setIsOn(event.target.checked);
+        fetch('/api/switch', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: config.name,
+                on: event.target.checked,
+            }),
+        });
     };
 
     return (

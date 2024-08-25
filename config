@@ -1,16 +1,16 @@
 {
-  "port": 8080,
   "dir": "./srv",
+  "port": 8080,
   "switches": [
-     {
-     "name": "light",
-      "pin": 12,
-      "on": true
+    {
+      "name": "light",
+      "on": true,
+      "pin": 12
     },
     {
       "name": "fan",
-      "pin": 18,
-      "on": false
+      "on": true,
+      "pin": 18
     }
   ]
 }

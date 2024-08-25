@@ -97,6 +97,20 @@ func handleSwitch(w http.ResponseWriter, r *http.Request) {
 		sw.On = req.On
 		switches[req.Name] = sw
 
+		// format the config to save to the config file
+		var switchConfigs []interface{}
+		for _, sw := range switches {
+			switchConfigs = append(switchConfigs, map[string]interface{}{
+				"name": sw.Name,
+				"on":   sw.On,
+				"pin":  sw.PinNum,
+			})
+		}
+
+		// Update the config file
+		viper.Set("switches", switchConfigs)
+		viper.WriteConfig()
+
 		// Write a response
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Switch toggled"))

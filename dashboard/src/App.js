@@ -32,7 +32,7 @@ const theme = createTheme({
 });
 
 var defaultConfig = {
-  "port": 80,
+  "port": 8080,
   "dir": "./srv",
   "switches": [
     {
@@ -75,7 +75,6 @@ function App() {
         height: '9vh',
         zIndex: 1000,
       }} />
-      <SettingsSelector config={config} />
       <Switches config={config} />
     </ThemeProvider>
   );
