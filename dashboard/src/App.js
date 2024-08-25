@@ -25,6 +25,12 @@ const theme = createTheme({
     primary: {
       main: "#38ffb9",
     },
+    secondary: {
+      main: "#222",
+    },
+    error: {
+      main: "#ff3838",
+    },
   },
 });
 
@@ -53,7 +59,7 @@ function App() {
       <Setting
         content={"VMON"}
         sx={{
-          backgroundColor: '#333',
+          backgroundColor: 'secondary.light',
           color: 'primary.main',
           fontSize: '3em',
           height: '9vh',
