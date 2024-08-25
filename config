@@ -3,10 +3,10 @@
   "dir": "./srv",
   "hostname": "10.0.0.59",
   "pins": {
-    "16": {
+    "12": {
       "mode": "out",
-      "name": "Light",
-      "on": true
+      "name": "",
+      "on": false
     }
   },
   "port": 8080
