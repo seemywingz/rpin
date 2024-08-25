@@ -31,6 +31,25 @@ const theme = createTheme({
 
 });
 
+var defaultConfig = {
+  "devport": 3000,
+  "dir": "./srv",
+  "hostname": "10.0.0.59",
+  "pins": [
+    {
+      "name": "Light 1",
+      "on": false,
+      "pin": 16
+    },
+    {
+      "name": "Light 2",
+      "on": false,
+      "pin": 12
+    }
+  ],
+  "port": 8080
+}
+
 
 function App() {
   var [config, setConfig] = useState('');
@@ -38,18 +57,18 @@ function App() {
   var port = 8080
 
   useEffect(() => {
-    // if (process.env.NODE_ENV === 'development') {
-    //   console.log("Using default configuration");
-    //   setConfig(defaultConfig);
-    // } else {
-    fetch("http://" + hostname + ":" + port + "/api/config")
-      .then((response) => response.json())
-      .then((data) => {
-        setConfig(data);
-        console.log("config", data);
-      })
-      .catch((error) => console.error('Error loading configuration:', error));
-    // }
+    if (process.env.NODE_ENV === 'development') {
+      console.log("Using default configuration");
+      setConfig(defaultConfig);
+    } else {
+      fetch("http://" + hostname + ":" + port + "/api/config")
+        .then((response) => response.json())
+        .then((data) => {
+          setConfig(data);
+          console.log("config", data);
+        })
+        .catch((error) => console.error('Error loading configuration:', error));
+    }
   }, []);
 
 

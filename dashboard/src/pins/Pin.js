@@ -22,7 +22,7 @@ export default function Pin({ props, config }) {
 
     return (
         <FormControlLabel
-            labelPlacement="start"
+            labelPlacement="top"
             label={props.name}
             control={<Switch checked={isOn} onChange={handleChange} />}
             value={isOn}

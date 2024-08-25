@@ -11,15 +11,15 @@ import (
 )
 
 type Pin struct {
-	Name   string
-	On     bool
-	PinNum int
-	Pin    *rpio.Pin
+	Name string
+	On   bool
+	Num  int
+	Pin  *rpio.Pin
 }
 
 var pins = make(map[string]Pin)
 
-func initSwitches() {
+func initPins() {
 	pinConfigs := viper.Get("pins").([]interface{})
 
 	for _, config := range pinConfigs {
@@ -40,10 +40,10 @@ func initSwitches() {
 
 		// Create the Switch object and append it to the switches slice
 		p := Pin{
-			Name:   name,
-			On:     on,
-			PinNum: pinNum,
-			Pin:    pin,
+			Name: name,
+			On:   on,
+			Num:  pinNum,
+			Pin:  pin,
 		}
 
 		if p.On {
@@ -53,7 +53,7 @@ func initSwitches() {
 		}
 
 		pins[name] = p
-		log.Printf("Initialized switch: %s, on: %v, Pin: %d\n", p.Name, p.On, p.PinNum)
+		log.Printf("Initialized switch: %s, on: %v, Pin: %d\n", p.Name, p.On, p.Num)
 	}
 
 }
@@ -98,7 +98,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			pinConfigs = append(pinConfigs, map[string]interface{}{
 				"name": pin.Name,
 				"on":   pin.On,
-				"pin":  pin.PinNum,
+				"pin":  pin.Num,
 			})
 		}
 
