@@ -31,10 +31,14 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Allowed origins
 		hostname := viper.GetString("hostname")
 		devport := viper.GetString("devport")
+		port := viper.GetString("port")
 		allowedOrigins := []string{
 			"http://" + hostname + ":" + devport,
 			"http://localhost:" + devport,
 			"http://127.0.0.1:" + devport,
+			"http://" + hostname + ":" + port,
+			"http://localhost:" + port,
+			"http://127.0.0.1:" + port,
 		}
 
 		// Get the origin of the current request
