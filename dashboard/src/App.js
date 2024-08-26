@@ -36,11 +36,13 @@ const theme = createTheme({
 
 function App() {
   const [config, setConfig] = useState(null);
-  const port = process.env.API_PORT | 8080;
+
+  const hostname = process.env.REACT_APP_API_HOST || "localhost";
+  const port = process.env.REACT_APP_API_PORT || 8080;
 
   useEffect(() => {
 
-    fetch(`http://localhost:${port}/api/config`)
+    fetch(`http://${hostname}:${port}/api/config`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");

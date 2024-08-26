@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Pin from "./Pin";
+import { Container } from "@mui/material";
 
 export default function Pins({ config }) {
     const [pins, setPins] = useState({}); // Initialize with an empty object
@@ -50,8 +51,12 @@ export default function Pins({ config }) {
     });
 
     return (
-        <div>
+        <Container sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+        }}>
             {pinElements}
-        </div>
+        </Container>
     );
 }

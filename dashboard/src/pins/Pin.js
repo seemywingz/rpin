@@ -44,7 +44,6 @@ export default function Pin({ pinNum, props, onUpdate }) {
 
     return (
         <Container sx={{
-            display: 'inline-block',
             padding: '10px',
             margin: '10px',
             border: '1px solid',
@@ -52,6 +51,7 @@ export default function Pin({ pinNum, props, onUpdate }) {
             borderColor: isOn ? 'primary.main' : 'secondary.main',
             borderRadius: '5px',
             position: 'relative',
+            maxWidth: '100px',
         }}>
             <IconButton
                 aria-controls="settings-menu"

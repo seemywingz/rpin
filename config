@@ -6,12 +6,12 @@
     "12": {
       "mode": "out",
       "name": "",
-      "on": true
+      "on": false
     },
     "16": {
       "mode": "out",
       "name": "",
-      "on": true
+      "on": false
     }
   },
   "port": 8080

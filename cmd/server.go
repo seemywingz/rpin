@@ -58,6 +58,8 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		} else {
+			log.Printf("Origin not allowed: %s", origin)
 		}
 
 		// Handle preflight requests
@@ -77,13 +79,14 @@ func handleConfig(w http.ResponseWriter, r *http.Request) {
 
 		// Read the configuration file then get all settings
 		viper.ReadInConfig()
+		initPins()
 		settings := viper.AllSettings()
 
 		// Marshal the settings into JSON
 		jsonData, err := json.Marshal(settings)
 		if err != nil {
 			http.Error(w, "Failed to marshal JSON", http.StatusInternalServerError)
-			log.Printf("Failed to marshal JSON: %v", err)
+			log.Printf("Failed to marshal settings to JSON: %v", err)
 			return
 		}
 

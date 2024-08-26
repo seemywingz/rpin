@@ -27,6 +27,7 @@ var configMutex sync.Mutex
 func initPins() {
 	// Get the pins from the Viper configuration
 	pinConfigs := viper.GetStringMap("pins")
+	pins = make(map[int]Pin)
 
 	for numStr, config := range pinConfigs {
 		// Convert the string key to an integer pin number
