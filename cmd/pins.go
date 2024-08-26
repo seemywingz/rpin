@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/seemywingz/gotoolbox/gtb"
 	"github.com/spf13/viper"
@@ -20,6 +21,7 @@ type Pin struct {
 }
 
 var pins = make(map[int]Pin)
+var configMutex sync.Mutex
 
 func initPins() {
 	// Get the pins from the Viper configuration
@@ -95,6 +97,9 @@ func getMode(mode string) rpio.Mode {
 }
 
 func handlePin(w http.ResponseWriter, r *http.Request) {
+	configMutex.Lock()
+	defer configMutex.Unlock()
+
 	var req struct {
 		Name string `json:"name"`
 		On   bool   `json:"on"`
