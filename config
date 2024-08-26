@@ -6,7 +6,7 @@
     "12": {
       "mode": "out",
       "name": "",
-      "on": false
+      "on": true
     },
     "16": {
       "mode": "out",

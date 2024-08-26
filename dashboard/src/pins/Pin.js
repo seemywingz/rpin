@@ -51,7 +51,6 @@ export default function Pin({ pinNum, props, onUpdate }) {
             backgroundColor: isOn ? 'secondary.light' : 'secondary.dark',
             borderColor: isOn ? 'primary.main' : 'secondary.main',
             borderRadius: '5px',
-            maxWidth: '150px',
             position: 'relative',
         }}>
             <IconButton

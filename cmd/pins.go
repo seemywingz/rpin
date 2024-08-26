@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 
@@ -36,7 +37,7 @@ func initPins() {
 		}
 
 		// Assert the config to the appropriate type (map[string]interface{})
-		pinConfig := config.(map[string]interface{})
+		pinConfig := config.(map[string]any)
 
 		// Extract the on status, mode, and name
 		on := pinConfig["on"].(bool)
@@ -97,9 +98,6 @@ func getMode(mode string) rpio.Mode {
 }
 
 func handlePin(w http.ResponseWriter, r *http.Request) {
-	configMutex.Lock()
-	defer configMutex.Unlock()
-
 	var req struct {
 		Name string `json:"name"`
 		On   bool   `json:"on"`
@@ -116,28 +114,29 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 
 	// Find the pin by its GPIO number
 	p, ok := pins[req.Num]
-	if !ok && r.Method != http.MethodDelete {
-		http.Error(w, "Pin not found", http.StatusNotFound)
-		log.Printf("Pin not found: %d", req.Num)
-		return
-	}
 
 	switch r.Method {
 	case http.MethodPost:
 		// Update the pin state
+		if !ok {
+			http.Error(w, "Pin not found", http.StatusNotFound)
+			log.Printf("Pin not found: %d", req.Num)
+			return
+		}
 		p.On = req.On
 		p.Name = req.Name
 		p.Mode = req.Mode
 		togglePin(p)
 		pins[req.Num] = p
-		log.Printf("Pin updated: %v", p)
+		log.Printf("📄 Updated Pin: %v", p)
 	case http.MethodDelete:
 		// Reset pin to default state and delete it
 		if ok { // Ensure the pin exists before trying to delete it
 			p.GPIO.Low()
 			delete(pins, req.Num)
-			delete(viper.Get("pins").(map[string]interface{}), strconv.Itoa(req.Num))
-			log.Printf("Pin deleted: %d", req.Num)
+			conf := viper.AllSettings()
+			delete(conf, "pins")
+			log.Printf("🔥 Deleted Pin: %d: %v", req.Num, pins)
 		} else {
 			log.Printf("Attempted to delete a non-existing pin: %d", req.Num)
 		}
@@ -146,27 +145,37 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update the config file with the modified pin settings
-	updatedConfig := make(map[string]interface{})
+	updatePinConf()
+
+	// Write a response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Pin Updated"))
+}
+
+func updatePinConf() {
+	updatedPinConfig := make(map[string]any)
 	for num, pin := range pins {
-		updatedConfig[strconv.Itoa(num)] = map[string]interface{}{
+		updatedPinConfig[strconv.Itoa(num)] = map[string]any{
 			"mode": pin.Mode,
 			"name": pin.Name,
 			"on":   pin.On,
 		}
 	}
 
-	// Remove the deleted pin from Viper's internal config map
-	viper.Set("pins", updatedConfig)
+	conf := viper.AllSettings()
+	conf["pins"] = updatedPinConfig
 
-	// Write the updated configuration back to the file
-	if err := viper.WriteConfig(); err != nil {
-		log.Printf("Failed to write config: %v", err)
-		http.Error(w, "Failed to update config", http.StatusInternalServerError)
-		return
+	// Marshal the settings to JSON
+	confData, err := json.MarshalIndent(conf, "", "  ")
+	if err != nil {
+		panic(err)
 	}
 
-	// Write a response
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Pin Updated"))
+	confFile := viper.ConfigFileUsed()
+	// Write the JSON data to the config file
+	err = os.WriteFile(confFile, confData, 0644)
+	if err != nil {
+		panic(err)
+	}
+	viper.ReadInConfig()
 }

@@ -75,7 +75,8 @@ func handleConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		w.Header().Set("Content-Type", "application/json")
 
-		// Get all settings from Viper
+		// Read the configuration file then get all settings
+		viper.ReadInConfig()
 		settings := viper.AllSettings()
 
 		// Marshal the settings into JSON
