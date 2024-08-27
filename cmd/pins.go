@@ -127,7 +127,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		p.Mode = req.Mode
 		togglePin(p)
 		pins[req.Num] = p
-		log.Printf("⚙️ Updated Pin: %d On: %v, Mode: %s", req.Num, req.On, req.Mode)
+		log.Printf("⚙️ Updated Pin: %d, Name: %s, On: %v, Mode: %s", req.Num, p.Name, req.On, req.Mode)
 
 	case http.MethodDelete:
 		if ok { // Ensure the pin exists before trying to delete it

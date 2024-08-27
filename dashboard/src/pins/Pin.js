@@ -1,25 +1,41 @@
 import React, { useState } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { Container, IconButton, Menu, MenuItem } from "@mui/material";
+import { Container, IconButton, Menu, MenuItem, TextField } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Pin({ pinNum, props, onUpdate }) {
     const [isOn, setIsOn] = useState(props.on);
+    const [name, setName] = useState(props.name);
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleChange = (event) => {
         const newIsOn = event.target.checked;
-        setIsOn(newIsOn); // Update local state
+        setIsOn(newIsOn);
         const pinState = {
             on: newIsOn,
-            name: props.name,
+            name: name,
             num: parseInt(pinNum, 10),
             mode: props.mode,
         };
-        // Send the entire state to the server with the POST method
         onUpdate(pinState, "POST");
+    };
+
+    const handleNameChange = (event) => {
+        const newName = event.target.value;
+        setName(newName);
+    };
+
+    const handleNameSubmit = () => {
+        const pinState = {
+            on: isOn,
+            name: name,
+            num: parseInt(pinNum, 10),
+            mode: props.mode,
+        };
+        onUpdate(pinState, "POST");
+        handleMenuClose();
     };
 
     const handleMenuOpen = (event) => {
@@ -33,11 +49,10 @@ export default function Pin({ pinNum, props, onUpdate }) {
     const handleDelete = () => {
         const pinState = {
             on: isOn,
-            name: props.name,
+            name: name,
             num: parseInt(pinNum, 10),
             mode: props.mode,
         };
-        // Send the DELETE request to the server
         onUpdate(pinState, "DELETE");
         handleMenuClose();
     };
@@ -51,10 +66,10 @@ export default function Pin({ pinNum, props, onUpdate }) {
             borderColor: isOn ? 'primary.main' : 'secondary.main',
             borderRadius: '5px',
             position: 'relative',
-            maxWidth: '100px',
+            maxWidth: '120px',
         }}>
             <IconButton
-                aria-controls="settings-menu"
+                aria-controls="pin-settings-menu"
                 aria-haspopup="true"
                 onClick={handleMenuOpen}
                 sx={{
@@ -70,16 +85,28 @@ export default function Pin({ pinNum, props, onUpdate }) {
                 }} />
             </IconButton>
             <Menu
-                id="settings-menu"
+                id="pin-settings-menu"
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
             >
-                <MenuItem onClick={handleDelete}><DeleteIcon color="error" /></MenuItem>
+                <MenuItem>
+                    <TextField
+                        id="standard-basic"
+                        label="Name"
+                        variant="outlined"
+                        value={name}
+                        onChange={handleNameChange}
+                        onBlur={handleNameSubmit} // Save the name when the user leaves the TextField
+                    />
+                </MenuItem>
+                <MenuItem onClick={handleDelete}>
+                    <DeleteIcon color="error" />
+                </MenuItem>
             </Menu>
             <FormControlLabel
                 labelPlacement="top"
-                label={props.name || pinNum}
+                label={name || pinNum}
                 control={<Switch checked={isOn} onChange={handleChange} />}
                 value={isOn}
             />

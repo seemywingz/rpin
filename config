@@ -5,12 +5,12 @@
   "pins": {
     "12": {
       "mode": "out",
-      "name": "",
+      "name": "💡",
       "on": false
     },
     "16": {
       "mode": "out",
-      "name": "",
+      "name": "💡",
       "on": false
     }
   },
