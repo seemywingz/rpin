@@ -125,6 +125,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		p.On = req.On
 		p.Name = req.Name
 		p.Mode = req.Mode
+		p.GPIO.Mode(getMode(req.Mode))
 		togglePin(p)
 		pins[req.Num] = p
 		log.Printf("⚙️ Updated Pin: %d, Name: %s, On: %v, Mode: %s", req.Num, p.Name, req.On, req.Mode)

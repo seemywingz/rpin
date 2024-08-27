@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Container from '@mui/material/Container';
-import Setting from './settings/Setting';
 import Pins from './pins/Pins';
 
 // Define the theme
@@ -11,7 +10,7 @@ const theme = createTheme({
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
-      'Roboto',
+      'Roboto Slab',
       '"Helvetica Neue"',
       'Arial',
       'sans-serif',
@@ -58,16 +57,20 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Setting
-        content={"VMON"}
+      <Container content={"VMON"}
         sx={{
+          fontFamily: 'Roboto Slab',
           backgroundColor: 'secondary.light',
           color: 'primary.main',
           fontSize: '3em',
           height: '9vh',
           zIndex: 1000,
+          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-      />
+      >VMON</Container>
       <Container>
         <Pins config={config} />
       </Container>

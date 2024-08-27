@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { Container, IconButton, Menu, MenuItem, TextField } from "@mui/material";
+import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -66,7 +66,7 @@ export default function Pin({ pinNum, props, onUpdate }) {
             borderColor: isOn ? 'primary.main' : 'secondary.main',
             borderRadius: '5px',
             position: 'relative',
-            maxWidth: '120px',
+            maxWidth: '150px',
         }}>
             <IconButton
                 aria-controls="pin-settings-menu"
@@ -93,12 +93,44 @@ export default function Pin({ pinNum, props, onUpdate }) {
                 <MenuItem>
                     <TextField
                         id="standard-basic"
+                        label="Pin"
+                        variant="outlined"
+                        value={pinNum}
+                        disabled
+                    />
+                </MenuItem>
+                <MenuItem>
+                    <TextField
+                        id="standard-basic"
                         label="Name"
                         variant="outlined"
                         value={name}
                         onChange={handleNameChange}
-                        onBlur={handleNameSubmit} // Save the name when the user leaves the TextField
+                        onBlur={handleNameSubmit}
                     />
+                </MenuItem>
+                <MenuItem>
+                    <FormControl fullWidth variant="outlined">
+                        <InputLabel id="mode-select-label">Mode</InputLabel>
+                        <Select
+                            labelId="mode-select-label"
+                            value={props.mode}
+                            label="Mode"
+                            onChange={(event) => {
+                                const pinState = {
+                                    on: isOn,
+                                    name: name,
+                                    num: parseInt(pinNum, 10),
+                                    mode: event.target.value,
+                                };
+                                onUpdate(pinState, "POST");
+                            }}
+                        >
+                            <MenuItem value="in">Input</MenuItem>
+                            <MenuItem value="out">Output</MenuItem>
+                            <MenuItem value="pwm">PWM</MenuItem>
+                        </Select>
+                    </FormControl>
                 </MenuItem>
                 <MenuItem onClick={handleDelete}>
                     <DeleteIcon color="error" />
