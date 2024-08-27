@@ -1,7 +1,7 @@
 {
   "devport": 3000,
   "dir": "./srv",
-  "hostname": "pi-4",
+  "hostname": "pi-4.local",
   "pins": {
     "12": {
       "mode": "out",

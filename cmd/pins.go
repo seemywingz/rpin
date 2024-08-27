@@ -145,7 +145,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		if pinExists { // Ensure the pin exists before trying to delete it
 			p.GPIO.Low()
 			delete(pins, req.Num)
-			log.Printf("🔥 Deleted Pin: %d: %v", req.Num, pins)
+			log.Printf("🔥 Deleted Pin: %d", req.Num)
 		} else {
 			log.Printf("Attempted to delete a non-existing pin: %d", req.Num)
 		}
@@ -170,6 +170,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		}
 		togglePin(newPin)
 		pins[req.Num] = newPin
+		log.Printf("➕ Added Pin: %d, Name: %s, On: %v, Mode: %s", req.Num, newPin.Name, newPin.On, newPin.Mode)
 
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

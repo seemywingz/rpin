@@ -59,7 +59,7 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		} else {
-			log.Printf("Origin not allowed: %s", origin)
+			log.Printf("🚫 Origin not allowed: %s", origin)
 		}
 
 		// Handle preflight requests

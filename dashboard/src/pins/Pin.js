@@ -65,7 +65,7 @@ export default function Pin({ pinNum, props, onUpdate }) {
                 padding: '10px',
                 margin: '10px',
                 border: '1px solid',
-                backgroundColor: isOn ? 'secondary.light' : 'secondary.dark',
+                backgroundColor: anchorEl ? 'primary.dark' : (isOn ? 'secondary.light' : 'secondary.dark'), // Change bg color based on menu open state
                 borderColor: isOn ? 'primary.main' : 'secondary.main',
                 borderRadius: '5px',
                 position: 'relative',
