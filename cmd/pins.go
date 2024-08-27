@@ -15,7 +15,6 @@ import (
 
 type Pin struct {
 	On   bool
-	Num  int
 	Name string
 	Mode string
 	GPIO *rpio.Pin
@@ -58,7 +57,6 @@ func initPins() {
 		// Create the Pin object and add it to the pins map indexed by the GPIO number
 		p := Pin{
 			On:   on,
-			Num:  num,
 			Name: name,
 			Mode: mode,
 			GPIO: gpioPin,
@@ -68,7 +66,7 @@ func initPins() {
 
 		// Store the Pin object in the map using the GPIO number as the key
 		pins[num] = p
-		log.Printf("Initialized Pin: %s, on: %v, gpio: %d\n", name, p.On, p.Num)
+		log.Printf("Initialized Pin: %s, On: %v, Mode: %s\n", numStr, on, p.Mode)
 	}
 }
 
@@ -129,18 +127,17 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		p.Mode = req.Mode
 		togglePin(p)
 		pins[req.Num] = p
-		log.Printf("📄 Updated Pin: %v", p)
+		log.Printf("⚙️ Updated Pin: %d On: %v, Mode: %s", req.Num, req.On, req.Mode)
+
 	case http.MethodDelete:
-		// Reset pin to default state and delete it
 		if ok { // Ensure the pin exists before trying to delete it
 			p.GPIO.Low()
 			delete(pins, req.Num)
-			conf := viper.AllSettings()
-			delete(conf, "pins")
 			log.Printf("🔥 Deleted Pin: %d: %v", req.Num, pins)
 		} else {
 			log.Printf("Attempted to delete a non-existing pin: %d", req.Num)
 		}
+
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
