@@ -1,16 +1,21 @@
 {
   "devport": 3000,
   "dir": "./srv",
-  "hostname": "10.0.0.59",
+  "hostname": "pi-4",
   "pins": {
     "12": {
       "mode": "out",
-      "name": "Light 1",
+      "name": "Pin 12",
       "on": false
     },
     "16": {
       "mode": "out",
-      "name": "Light 1",
+      "name": "Pin 16",
+      "on": false
+    },
+    "21": {
+      "mode": "out",
+      "name": "Pin 21",
       "on": false
     }
   },

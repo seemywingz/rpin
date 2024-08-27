@@ -69,6 +69,7 @@ function App() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          minWidth: '100%',
         }}
       >VMON</Container>
       <Container>
