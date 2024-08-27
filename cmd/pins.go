@@ -92,6 +92,18 @@ func getMode(mode string) rpio.Mode {
 		return rpio.Spi
 	case "clock":
 		return rpio.Clock
+	case "alt0":
+		return rpio.Alt0
+	case "alt1":
+		return rpio.Alt1
+	case "alt2":
+		return rpio.Alt2
+	case "alt3":
+		return rpio.Alt3
+	case "alt4":
+		return rpio.Alt4
+	case "alt5":
+		return rpio.Alt5
 	}
 	return rpio.Output
 }
@@ -112,12 +124,11 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Find the pin by its GPIO number
-	p, ok := pins[req.Num]
+	p, pinExists := pins[req.Num]
 
 	switch r.Method {
 	case http.MethodPost:
-		// Update the pin state
-		if !ok {
+		if !pinExists { // Ensure the pin exists before trying to update it
 			http.Error(w, "Pin not found", http.StatusNotFound)
 			log.Printf("Pin not found: %d", req.Num)
 			return
@@ -131,13 +142,34 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		log.Printf("⚙️ Updated Pin: %d, Name: %s, On: %v, Mode: %s", req.Num, p.Name, req.On, req.Mode)
 
 	case http.MethodDelete:
-		if ok { // Ensure the pin exists before trying to delete it
+		if pinExists { // Ensure the pin exists before trying to delete it
 			p.GPIO.Low()
 			delete(pins, req.Num)
 			log.Printf("🔥 Deleted Pin: %d: %v", req.Num, pins)
 		} else {
 			log.Printf("Attempted to delete a non-existing pin: %d", req.Num)
 		}
+
+	case http.MethodPut:
+		if pinExists { // Ensure the pin doesn't already exist before trying to create it
+			http.Error(w, "Pin Already Exists", http.StatusConflict)
+			log.Printf("Pin already exists: %d", req.Num)
+			return
+		}
+		gpioPin, err := NewGPIOPin(req.Num, getMode(req.Mode))
+		if err != nil {
+			http.Error(w, "💔 Failed to create GPIO pin", http.StatusInternalServerError)
+			log.Printf("💔 Failed to create GPIO pin: %v", err)
+			return
+		}
+		newPin := Pin{
+			On:   req.On,
+			Name: req.Name,
+			Mode: req.Mode,
+			GPIO: gpioPin,
+		}
+		togglePin(newPin)
+		pins[req.Num] = newPin
 
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

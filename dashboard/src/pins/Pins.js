@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Pin from "./Pin";
-import { Container } from "@mui/material";
+import { Container, Fab } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
 
 export default function Pins({ config }) {
     const [pins, setPins] = useState({}); // Initialize with an empty object
@@ -56,6 +57,14 @@ export default function Pins({ config }) {
             flexWrap: 'wrap',
             justifyContent: 'center',
         }}>
+            <Fab size="small" color="primary" aria-label="add"
+                sx={{
+                    position: 'fixed',
+                    top: '20px',
+                    left: '20px',
+                }}>
+                <AddIcon />
+            </Fab>
             {pinElements}
         </Container>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select } from "@mui/material";
@@ -9,6 +9,7 @@ export default function Pin({ pinNum, props, onUpdate }) {
     const [isOn, setIsOn] = useState(props.on);
     const [name, setName] = useState(props.name);
     const [anchorEl, setAnchorEl] = useState(null);
+    const containerRef = useRef(null); // Reference to the container
 
     const handleChange = (event) => {
         const newIsOn = event.target.checked;
@@ -38,8 +39,8 @@ export default function Pin({ pinNum, props, onUpdate }) {
         handleMenuClose();
     };
 
-    const handleMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleMenuOpen = () => {
+        setAnchorEl(containerRef.current); // Use the container as the anchor
     };
 
     const handleMenuClose = () => {
@@ -58,16 +59,19 @@ export default function Pin({ pinNum, props, onUpdate }) {
     };
 
     return (
-        <Container sx={{
-            padding: '10px',
-            margin: '10px',
-            border: '1px solid',
-            backgroundColor: isOn ? 'secondary.light' : 'secondary.dark',
-            borderColor: isOn ? 'primary.main' : 'secondary.main',
-            borderRadius: '5px',
-            position: 'relative',
-            maxWidth: '150px',
-        }}>
+        <Container
+            ref={containerRef} // Attach the ref to the container
+            sx={{
+                padding: '10px',
+                margin: '10px',
+                border: '1px solid',
+                backgroundColor: isOn ? 'secondary.light' : 'secondary.dark',
+                borderColor: isOn ? 'primary.main' : 'secondary.main',
+                borderRadius: '5px',
+                position: 'relative',
+                maxWidth: '150px',
+            }}
+        >
             <IconButton
                 aria-controls="pin-settings-menu"
                 aria-haspopup="true"
@@ -89,6 +93,14 @@ export default function Pin({ pinNum, props, onUpdate }) {
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
             >
                 <MenuItem>
                     <TextField
@@ -129,6 +141,14 @@ export default function Pin({ pinNum, props, onUpdate }) {
                             <MenuItem value="in">Input</MenuItem>
                             <MenuItem value="out">Output</MenuItem>
                             <MenuItem value="pwm">PWM</MenuItem>
+                            <MenuItem value="spi">SPI</MenuItem>
+                            <MenuItem value="clock">Clock</MenuItem>
+                            <MenuItem value="alt0">Alt0</MenuItem>
+                            <MenuItem value="alt1">Alt1</MenuItem>
+                            <MenuItem value="alt2">Alt2</MenuItem>
+                            <MenuItem value="alt3">Alt3</MenuItem>
+                            <MenuItem value="alt4">Alt4</MenuItem>
+                            <MenuItem value="alt5">Alt5</MenuItem>
                         </Select>
                     </FormControl>
                 </MenuItem>

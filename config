@@ -6,11 +6,11 @@
     "12": {
       "mode": "out",
       "name": "Light 1",
-      "on": true
+      "on": false
     },
     "16": {
       "mode": "out",
-      "name": "Light 2",
+      "name": "Light 1",
       "on": false
     }
   },
