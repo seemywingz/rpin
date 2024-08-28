@@ -143,6 +143,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodDelete:
 		if pinExists {
+			p.GPIO.Output()
 			p.GPIO.Low()
 
 			configMutex.Lock()
@@ -242,8 +243,8 @@ func updataGPIOState(pin Pin) {
 		pin.GPIO.Pwm()
 		// Set the frequency and duty cycle
 		// The frequency is in Hz and the duty and cycle are in micro-seconds
-		// For example, a duty cycle of 32 and a cycle of 128 would be 25%
-		pin.GPIO.Freq(pin.Hz * int(pin.Cycle)) // 1Hz * 128 = 128Hz
+		// For example, a duty cycle of 550 and a cycle of 20000 would be 2.75% duty cycle
+		pin.GPIO.Freq(pin.Hz * int(pin.Cycle)) // 50Hz * 20000 = 0.02s = 20ms
 		if pin.On {
 			pin.GPIO.DutyCycle(pin.Duty, pin.Cycle)
 		} else {

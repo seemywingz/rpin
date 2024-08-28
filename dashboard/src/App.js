@@ -57,7 +57,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container content={"VMON"}
+      <Container
         sx={{
           fontFamily: 'Roboto Slab',
           backgroundColor: 'secondary.light',
@@ -71,7 +71,7 @@ function App() {
           justifyContent: 'center',
           minWidth: '100%',
         }}
-      >VMON</Container>
+      >rPiN</Container>
       <Container>
         <Pins config={config} />
       </Container>

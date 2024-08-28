@@ -5,24 +5,24 @@
   "pins": {
     "12": {
       "cycle": 20000,
-      "duty": 913,
+      "duty": 1860,
       "hz": 50,
       "mode": "pwm",
       "name": "Pin 12",
-      "on": false
+      "on": true
     },
     "16": {
-      "cycle": 33971,
-      "duty": 19152,
-      "hz": 50,
+      "cycle": 128,
+      "duty": 2500,
+      "hz": 4688,
       "mode": "out",
       "name": "Pin 16",
       "on": false
     },
     "21": {
-      "cycle": 128,
+      "cycle": 20000,
       "duty": 0,
-      "hz": 4688,
+      "hz": 50,
       "mode": "out",
       "name": "Pin 21",
       "on": false

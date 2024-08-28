@@ -1,17 +1,20 @@
 import React, { useState, useRef } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select, Slider, Typography } from "@mui/material";
-import SettingsIcon from '@mui/icons-material/Settings';
+import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select, Slider } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
+import EarbudsIcon from '@mui/icons-material/Earbuds';
+import OutputIcon from '@mui/icons-material/Output';
+import InputIcon from '@mui/icons-material/Input';
+import BuildIcon from '@mui/icons-material/Build'; // Generic icon for modes without a specific icon
 
 export default function Pin({ pinNum, props, onUpdate, config }) {
     const [isOn, setIsOn] = useState(props.on);
     const [name, setName] = useState(props.name);
     const [mode, setMode] = useState(props.mode);
-    const [hz, setHz] = useState(props.hz || 4688); // Default frequency to 4688 if undefined
+    const [hz, setHz] = useState(props.hz || 50); // Default frequency to 4688 if undefined
     const [duty, setDuty] = useState(props.duty || 0); // Default duty length to 0 if undefined
-    const [cycle, setCycle] = useState(props.cycle || 128); // Default cycle length to 128 if undefined
+    const [cycle, setCycle] = useState(props.cycle || 20000); // Default cycle length to 128 if undefined
     const [anchorEl, setAnchorEl] = useState(null);
     const [dutyMax, setDutyMax] = useState(2500);
     const [dutyMin, setDutyMin] = useState(550);
@@ -91,6 +94,20 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
         updatePinState({ cycle: newValue });
     };
 
+    // Determine the icon based on the mode
+    const getIconForMode = (mode) => {
+        switch (mode) {
+            case 'in':
+                return <InputIcon sx={{ color: isOn ? 'primary.dark' : 'secondary.light' }} />;
+            case 'out':
+                return <OutputIcon sx={{ color: isOn ? 'primary.dark' : 'secondary.light' }} />;
+            case 'pwm':
+                return <EarbudsIcon sx={{ color: isOn ? 'primary.dark' : 'secondary.light' }} />;
+            default:
+                return <BuildIcon sx={{ color: isOn ? 'primary.dark' : 'secondary.light' }} />; // Fallback icon
+        }
+    };
+
     return (
         <Container
             ref={containerRef}
@@ -117,13 +134,7 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
                     maxHeight: '9px',
                 }}
             >
-                <SettingsIcon sx={{
-                    color: isOn ? 'primary.dark' : 'secondary.light',
-                }} />
-
-                <Typography sx={{ textAlign: 'left', fontSize: "1e" }}>
-                    {mode.toUpperCase()}
-                </Typography>
+                {getIconForMode(mode)}
             </IconButton>
             <Menu
                 id="pin-settings-menu"
