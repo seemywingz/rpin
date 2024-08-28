@@ -177,7 +177,7 @@ export default function Pin({ pinNum, props, onUpdate }) {
             <FormControlLabel
                 labelPlacement="top"
                 label={name || pinNum}
-                control={<Switch checked={isOn} onChange={handleChange} />}
+                control={<Switch checked={isOn} onChange={handleChange} disabled={props.mode === "in"} />}
                 value={isOn}
             />
 
@@ -195,7 +195,7 @@ export default function Pin({ pinNum, props, onUpdate }) {
                         value={dutyLen}
                         onChange={handleDutyLenChange}
                         aria-labelledby="duty-length-slider"
-                        min={3}
+                        min={0}
                         max={cycleLen}
                         valueLabelDisplay="auto"
                     />
