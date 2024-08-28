@@ -2,118 +2,86 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"sync"
 
-	"github.com/seemywingz/gotoolbox/gtb"
 	"github.com/spf13/viper"
 	"github.com/stianeikeland/go-rpio/v4"
 )
 
 type Pin struct {
-	On   bool
-	Name string
-	Mode string
-	GPIO *rpio.Pin
+	On    bool
+	Name  string
+	Mode  string
+	Hz    int
+	Duty  uint32
+	Cycle uint32
+	GPIO  *rpio.Pin
 }
 
 var pins = make(map[int]Pin)
-var configMutex sync.Mutex
+var configMutex sync.RWMutex
 
 func initPins() {
 	// Get the pins from the Viper configuration
 	pinConfigs := viper.GetStringMap("pins")
 	pins = make(map[int]Pin)
 
+	err := rpio.Open()
+	if err != nil {
+		log.Println("💔 Failed to open GPIO")
+		os.Exit(1)
+	}
+
 	for numStr, config := range pinConfigs {
-		// Convert the string key to an integer pin number
 		num, err := strconv.Atoi(numStr)
 		if err != nil {
 			log.Printf("Invalid GPIO number: %s", numStr)
 			continue
 		}
 
-		// Assert the config to the appropriate type (map[string]interface{})
 		pinConfig := config.(map[string]any)
-
-		// Extract the on status, mode, and name
 		on := pinConfig["on"].(bool)
 		mode := pinConfig["mode"].(string)
-		name := ""
-		if nameValue, ok := pinConfig["name"]; ok {
-			name = nameValue.(string)
-		}
+		hz := int(pinConfig["hz"].(float64))
+		duty := uint32(pinConfig["duty"].(float64))
+		cycle := uint32(pinConfig["cycle"].(float64))
+		name := pinConfig["name"].(string)
 
-		// Create a new GPIO pin for the switch
-		gpioPin, err := NewGPIOPin(num, getMode(mode))
-		if err != nil {
-			gtb.EoE(err) // Handle error gracefully
-			continue
-		}
+		gpioPin := rpio.Pin(num)
 
-		// Create the Pin object and add it to the pins map indexed by the GPIO number
 		p := Pin{
-			On:   on,
-			Name: name,
-			Mode: mode,
-			GPIO: gpioPin,
+			On:    on,
+			Name:  name,
+			Mode:  mode,
+			Hz:    hz,
+			Duty:  duty,
+			Cycle: cycle,
+			GPIO:  &gpioPin,
 		}
 
-		togglePin(p)
-
-		// Store the Pin object in the map using the GPIO number as the key
+		configMutex.Lock()
 		pins[num] = p
+		configMutex.Unlock()
+
+		updataGPIOState(p)
 		log.Printf("Initialized Pin: %s, On: %v, Mode: %s\n", numStr, on, p.Mode)
 	}
 }
 
-func togglePin(pin Pin) {
-	if pin.Mode == "out" {
-		if pin.On {
-			pin.GPIO.High()
-		} else {
-			pin.GPIO.Low()
-		}
-	}
-}
-
-func getMode(mode string) rpio.Mode {
-	switch mode {
-	case "input", "in":
-		return rpio.Input
-	case "output", "out":
-		return rpio.Output
-	case "pwm":
-		return rpio.Pwm
-	case "spi":
-		return rpio.Spi
-	case "clock":
-		return rpio.Clock
-	case "alt0":
-		return rpio.Alt0
-	case "alt1":
-		return rpio.Alt1
-	case "alt2":
-		return rpio.Alt2
-	case "alt3":
-		return rpio.Alt3
-	case "alt4":
-		return rpio.Alt4
-	case "alt5":
-		return rpio.Alt5
-	}
-	return rpio.Output
-}
-
 func handlePin(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Name string `json:"name"`
-		On   bool   `json:"on"`
-		Num  int    `json:"num"`
-		Mode string `json:"mode"`
+		Name  string `json:"name"`
+		On    bool   `json:"on"`
+		Num   int    `json:"num"`
+		Mode  string `json:"mode"`
+		Hz    int    `json:"hz"`
+		Duty  uint32 `json:"duty"`
+		Cycle uint32 `json:"cycle"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -123,54 +91,71 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Find the pin by its GPIO number
+	configMutex.RLock()
 	p, pinExists := pins[req.Num]
+	configMutex.RUnlock()
+
+	msg := ""
 
 	switch r.Method {
 	case http.MethodPost:
-		if !pinExists { // Ensure the pin exists before trying to update it
-			http.Error(w, "Pin not found", http.StatusNotFound)
-			log.Printf("Pin not found: %d", req.Num)
+		if !pinExists {
+			msg = fmt.Sprintf("⛔️  Pin not found: %d", req.Num)
+			http.Error(w, msg, http.StatusNotFound)
+			log.Printf(msg)
 			return
 		}
+
 		p.On = req.On
 		p.Name = req.Name
 		p.Mode = req.Mode
-		p.GPIO.Mode(getMode(req.Mode))
-		togglePin(p)
+		p.Hz = req.Hz
+		p.Duty = req.Duty
+		p.Cycle = req.Cycle
+
+		updataGPIOState(p)
+
+		configMutex.Lock()
 		pins[req.Num] = p
-		log.Printf("⚙️ Updated Pin: %d, Name: %s, On: %v, Mode: %s", req.Num, p.Name, req.On, req.Mode)
+		configMutex.Unlock()
+
+		msg = fmt.Sprintf("⚙️ Updated Pin: %d, Name: %s, On: %v, Mode: %s, Hz: %d, Duty: %d, Cycle: %d",
+			req.Num, p.Name, p.On, p.Mode, p.Hz, p.Duty, p.Cycle)
 
 	case http.MethodDelete:
-		if pinExists { // Ensure the pin exists before trying to delete it
+		if pinExists {
 			p.GPIO.Low()
+
+			configMutex.Lock()
 			delete(pins, req.Num)
-			log.Printf("🔥 Deleted Pin: %d", req.Num)
+			configMutex.Unlock()
+
+			msg = fmt.Sprintf("🗑  Deleted Pin: %d", req.Num)
 		} else {
-			log.Printf("Attempted to delete a non-existing pin: %d", req.Num)
+			msg = fmt.Sprintf("Attempted to delete a non-existing pin: %d", req.Num)
 		}
 
 	case http.MethodPut:
-		if pinExists { // Ensure the pin doesn't already exist before trying to create it
+		if pinExists {
 			http.Error(w, "Pin Already Exists", http.StatusConflict)
-			log.Printf("Pin already exists: %d", req.Num)
+			msg = fmt.Sprintf("Pin already exists: %d", req.Num)
 			return
 		}
-		gpioPin, err := NewGPIOPin(req.Num, getMode(req.Mode))
-		if err != nil {
-			http.Error(w, "💔 Failed to create GPIO pin", http.StatusInternalServerError)
-			log.Printf("💔 Failed to create GPIO pin: %v", err)
-			return
-		}
+		gpioPin := rpio.Pin(req.Num)
 		newPin := Pin{
 			On:   req.On,
 			Name: req.Name,
 			Mode: req.Mode,
-			GPIO: gpioPin,
+			GPIO: &gpioPin,
 		}
-		togglePin(newPin)
+
+		updataGPIOState(newPin)
+
+		configMutex.Lock()
 		pins[req.Num] = newPin
-		log.Printf("➕ Added Pin: %d, Name: %s, On: %v, Mode: %s", req.Num, newPin.Name, newPin.On, newPin.Mode)
+		configMutex.Unlock()
+
+		msg = fmt.Sprintf("➕ Added Pin: %d, Name: %s, On: %v, Mode: %s", req.Num, newPin.Name, newPin.On, newPin.Mode)
 
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -179,35 +164,77 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 
 	updatePinConf()
 
-	// Write a response
+	log.Println(msg)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Pin Updated"))
+	w.Write([]byte(msg))
 }
 
 func updatePinConf() {
+	configMutex.RLock()
+	defer configMutex.RUnlock()
+
 	updatedPinConfig := make(map[string]any)
 	for num, pin := range pins {
 		updatedPinConfig[strconv.Itoa(num)] = map[string]any{
-			"mode": pin.Mode,
-			"name": pin.Name,
-			"on":   pin.On,
+			"mode":  pin.Mode,
+			"name":  pin.Name,
+			"on":    pin.On,
+			"hz":    pin.Hz,
+			"duty":  pin.Duty,
+			"cycle": pin.Cycle,
 		}
 	}
 
 	conf := viper.AllSettings()
 	conf["pins"] = updatedPinConfig
 
-	// Marshal the settings to JSON
 	confData, err := json.MarshalIndent(conf, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 
 	confFile := viper.ConfigFileUsed()
-	// Write the JSON data to the config file
 	err = os.WriteFile(confFile, confData, 0644)
 	if err != nil {
 		panic(err)
 	}
 	viper.ReadInConfig()
+}
+
+func updataGPIOState(pin Pin) {
+	switch pin.Mode {
+	case "pwm":
+		pin.GPIO.Pwm()
+		pin.GPIO.Freq(pin.Hz * int(pin.Cycle))
+		if pin.On {
+			pin.GPIO.DutyCycle(pin.Duty, pin.Cycle)
+		} else {
+			pin.GPIO.DutyCycle(0, 128)
+		}
+	case "output", "out":
+		pin.GPIO.Output()
+		if pin.On {
+			pin.GPIO.High()
+		} else {
+			pin.GPIO.Low()
+		}
+	case "input", "in":
+		pin.GPIO.Input()
+	case "spi":
+		pin.GPIO.Mode(rpio.Spi)
+	case "clock":
+		pin.GPIO.Clock()
+	case "alt0":
+		pin.GPIO.Mode(rpio.Alt0)
+	case "alt1":
+		pin.GPIO.Mode(rpio.Alt1)
+	case "alt2":
+		pin.GPIO.Mode(rpio.Alt2)
+	case "alt3":
+		pin.GPIO.Mode(rpio.Alt3)
+	case "alt4":
+		pin.GPIO.Mode(rpio.Alt4)
+	case "alt5":
+		pin.GPIO.Mode(rpio.Alt5)
+	}
 }

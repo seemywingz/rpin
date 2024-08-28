@@ -4,16 +4,25 @@
   "hostname": "pi-4.local",
   "pins": {
     "12": {
-      "mode": "out",
+      "cycle": 30441,
+      "duty": 1346,
+      "hz": 50,
+      "mode": "pwm",
       "name": "Pin 12",
-      "on": false
+      "on": true
     },
     "16": {
+      "cycle": 33971,
+      "duty": 19152,
+      "hz": 50,
       "mode": "out",
       "name": "Pin 16",
       "on": false
     },
     "21": {
+      "cycle": 128,
+      "duty": 0,
+      "hz": 4688,
       "mode": "out",
       "name": "Pin 21",
       "on": false

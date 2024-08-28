@@ -1,26 +1,38 @@
 import React, { useState, useRef } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select } from "@mui/material";
+import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select, Slider, Typography } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Pin({ pinNum, props, onUpdate }) {
     const [isOn, setIsOn] = useState(props.on);
     const [name, setName] = useState(props.name);
+    const [mode, setMode] = useState(props.mode);
+    const [frequency, setFrequency] = useState(props.hz || 4688); // Default frequency to 4688 if undefined
+    const [dutyLen, setDutyLen] = useState(props.duty || 0); // Default duty length to 0 if undefined
+    const [cycleLen, setCycleLen] = useState(props.cycle || 128); // Default cycle length to 128 if undefined
     const [anchorEl, setAnchorEl] = useState(null);
-    const containerRef = useRef(null); // Reference to the container
+    const containerRef = useRef(null);
+
+    const updatePinState = (newState) => {
+        const pinState = {
+            on: isOn,
+            name: name,
+            num: parseInt(pinNum, 10),
+            mode: mode,
+            hz: parseInt(frequency, 10),
+            duty: dutyLen,
+            cycle: cycleLen,
+            ...newState, // Override with any new state values passed
+        };
+        onUpdate(pinState, "POST");
+    };
 
     const handleChange = (event) => {
         const newIsOn = event.target.checked;
         setIsOn(newIsOn);
-        const pinState = {
-            on: newIsOn,
-            name: name,
-            num: parseInt(pinNum, 10),
-            mode: props.mode,
-        };
-        onUpdate(pinState, "POST");
+        updatePinState({ on: newIsOn });
     };
 
     const handleNameChange = (event) => {
@@ -29,18 +41,12 @@ export default function Pin({ pinNum, props, onUpdate }) {
     };
 
     const handleNameSubmit = () => {
-        const pinState = {
-            on: isOn,
-            name: name,
-            num: parseInt(pinNum, 10),
-            mode: props.mode,
-        };
-        onUpdate(pinState, "POST");
+        updatePinState({ name });
         handleMenuClose();
     };
 
     const handleMenuOpen = () => {
-        setAnchorEl(containerRef.current); // Use the container as the anchor
+        setAnchorEl(containerRef.current);
     };
 
     const handleMenuClose = () => {
@@ -49,27 +55,46 @@ export default function Pin({ pinNum, props, onUpdate }) {
 
     const handleDelete = () => {
         const pinState = {
-            on: isOn,
-            name: name,
             num: parseInt(pinNum, 10),
-            mode: props.mode,
         };
         onUpdate(pinState, "DELETE");
         handleMenuClose();
     };
 
+    const handleModeChange = (event) => {
+        const newMode = event.target.value;
+        setMode(newMode);
+        updatePinState({ mode: newMode });
+    };
+
+    const handleFrequencyChange = (event) => {
+        const newFrequency = event.target.value;
+        setFrequency(newFrequency);
+        updatePinState({ frequency: newFrequency });
+    };
+
+    const handleDutyLenChange = (event, newValue) => {
+        setDutyLen(newValue);
+        updatePinState({ dutyLen: newValue });
+    };
+
+    const handleCycleLenChange = (event, newValue) => {
+        setCycleLen(newValue);
+        updatePinState({ cycleLen: newValue });
+    };
+
     return (
         <Container
-            ref={containerRef} // Attach the ref to the container
+            ref={containerRef}
             sx={{
                 padding: '10px',
                 margin: '10px',
                 border: '1px solid',
-                backgroundColor: anchorEl ? 'primary.dark' : (isOn ? 'secondary.light' : 'secondary.dark'), // Change bg color based on menu open state
+                backgroundColor: anchorEl ? 'primary.dark' : (isOn ? 'secondary.light' : 'secondary.dark'),
                 borderColor: isOn ? 'primary.main' : 'secondary.main',
                 borderRadius: '5px',
                 position: 'relative',
-                maxWidth: '150px',
+                maxWidth: '200px',
             }}
         >
             <IconButton
@@ -126,17 +151,9 @@ export default function Pin({ pinNum, props, onUpdate }) {
                         <InputLabel id="mode-select-label">Mode</InputLabel>
                         <Select
                             labelId="mode-select-label"
-                            value={props.mode}
+                            value={mode}
                             label="Mode"
-                            onChange={(event) => {
-                                const pinState = {
-                                    on: isOn,
-                                    name: name,
-                                    num: parseInt(pinNum, 10),
-                                    mode: event.target.value,
-                                };
-                                onUpdate(pinState, "POST");
-                            }}
+                            onChange={handleModeChange}
                         >
                             <MenuItem value="in">Input</MenuItem>
                             <MenuItem value="out">Output</MenuItem>
@@ -152,6 +169,7 @@ export default function Pin({ pinNum, props, onUpdate }) {
                         </Select>
                     </FormControl>
                 </MenuItem>
+
                 <MenuItem onClick={handleDelete}>
                     <DeleteIcon color="error" />
                 </MenuItem>
@@ -162,6 +180,36 @@ export default function Pin({ pinNum, props, onUpdate }) {
                 control={<Switch checked={isOn} onChange={handleChange} />}
                 value={isOn}
             />
+
+            {mode === 'pwm' && (
+                <Container sx={{ marginTop: '10px' }}>
+                    <TextField
+                        label="(Hz)"
+                        value={frequency}
+                        onChange={handleFrequencyChange}
+                        inputProps={{ min: 4688, max: 19200000 }}
+                        fullWidth
+                    />
+                    <Typography gutterBottom>Duty (µs)</Typography>
+                    <Slider
+                        value={dutyLen}
+                        onChange={handleDutyLenChange}
+                        aria-labelledby="duty-length-slider"
+                        min={3}
+                        max={cycleLen}
+                        valueLabelDisplay="auto"
+                    />
+                    <Typography gutterBottom>Cycle (µs)</Typography>
+                    <Slider
+                        value={cycleLen}
+                        onChange={handleCycleLenChange}
+                        aria-labelledby="cycle-length-slider"
+                        min={10000}
+                        max={40000} // Example max for a typical PWM range
+                        valueLabelDisplay="auto"
+                    />
+                </Container>
+            )}
         </Container>
     );
 }
