@@ -4,12 +4,12 @@
   "hostname": "pi-4.local",
   "pins": {
     "12": {
-      "cycle": 30441,
-      "duty": 1346,
+      "cycle": 20000,
+      "duty": 1840,
       "hz": 50,
       "mode": "pwm",
       "name": "Pin 12",
-      "on": true
+      "on": false
     },
     "16": {
       "cycle": 33971,
@@ -28,5 +28,11 @@
       "on": false
     }
   },
-  "port": 8080
+  "port": 8080,
+  "servo": {
+    "cycle": 20000,
+    "hz": 50,
+    "maxduty": 2500,
+    "minduty": 550
+  }
 }

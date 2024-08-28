@@ -77,7 +77,7 @@ export default function Pins({ config }) {
     // Map over the keys of the pins object
     const pinElements = Object.keys(pins).map((key) => {
         const pin = pins[key];
-        return <Pin key={key} pinNum={key} props={pin} onUpdate={handleUpdatePin} />;
+        return <Pin key={key} config={config} pinNum={key} props={pin} onUpdate={handleUpdatePin} />;
     });
 
     return (

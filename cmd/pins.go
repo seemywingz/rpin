@@ -203,7 +203,7 @@ func updatePinConf() {
 
 func updataGPIOState(pin Pin) {
 	switch pin.Mode {
-	case "pwm":
+	case "pwm", "servo":
 		pin.GPIO.Pwm()
 		pin.GPIO.Freq(pin.Hz * int(pin.Cycle))
 		if pin.On {

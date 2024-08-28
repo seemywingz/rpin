@@ -2,17 +2,23 @@ import React, { useState, useRef } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select, Slider, Typography } from "@mui/material";
-import SettingsIcon from '@mui/icons-material/Settings';
-import DeleteIcon from '@mui/icons-material/Delete';
+import {
+    SettingsIcon,
+    DeleteIcon,
+    InputIcon,
+    OutputIcon
+} from '@mui/icons-material';
 
-export default function Pin({ pinNum, props, onUpdate }) {
+export default function Pin({ pinNum, props, onUpdate, config }) {
     const [isOn, setIsOn] = useState(props.on);
     const [name, setName] = useState(props.name);
     const [mode, setMode] = useState(props.mode);
-    const [frequency, setFrequency] = useState(props.hz || 4688); // Default frequency to 4688 if undefined
-    const [dutyLen, setDutyLen] = useState(props.duty || 0); // Default duty length to 0 if undefined
-    const [cycleLen, setCycleLen] = useState(props.cycle || 128); // Default cycle length to 128 if undefined
+    const [hz, setHz] = useState(props.hz || 4688); // Default frequency to 4688 if undefined
+    const [duty, setDuty] = useState(props.duty || 0); // Default duty length to 0 if undefined
+    const [cycle, setCycle] = useState(props.cycle || 128); // Default cycle length to 128 if undefined
     const [anchorEl, setAnchorEl] = useState(null);
+    const [dutyMax, setDutyMax] = useState(2500);
+    const [dutyMin, setDutyMin] = useState(550);
     const containerRef = useRef(null);
 
     const updatePinState = (newState) => {
@@ -21,9 +27,9 @@ export default function Pin({ pinNum, props, onUpdate }) {
             name: name,
             num: parseInt(pinNum, 10),
             mode: mode,
-            hz: parseInt(frequency, 10),
-            duty: dutyLen,
-            cycle: cycleLen,
+            hz: parseInt(hz, 10),
+            duty: duty,
+            cycle: cycle,
             ...newState, // Override with any new state values passed
         };
         onUpdate(pinState, "POST");
@@ -69,18 +75,24 @@ export default function Pin({ pinNum, props, onUpdate }) {
 
     const handleFrequencyChange = (event) => {
         const newFrequency = event.target.value;
-        setFrequency(newFrequency);
-        updatePinState({ frequency: newFrequency });
+        setHz(newFrequency);
+        updatePinState({ hz: newFrequency });
     };
 
-    const handleDutyLenChange = (event, newValue) => {
-        setDutyLen(newValue);
-        updatePinState({ dutyLen: newValue });
+    const handleDutyChange = (event, newValue) => {
+        setDuty(newValue);
+        if (mode === "servo") {
+            setCycle(cycle);
+            setHz(hz);
+            updatePinState({ duty: newValue });
+        } else {
+            updatePinState({ duty: newValue });
+        }
     };
 
     const handleCycleLenChange = (event, newValue) => {
-        setCycleLen(newValue);
-        updatePinState({ cycleLen: newValue });
+        setCycle(newValue);
+        updatePinState({ cycle: newValue });
     };
 
     return (
@@ -109,9 +121,14 @@ export default function Pin({ pinNum, props, onUpdate }) {
                     maxHeight: '9px',
                 }}
             >
-                <SettingsIcon sx={{
+
+                (<SettingsIcon sx={{
                     color: isOn ? 'primary.dark' : 'secondary.light',
-                }} />
+                }} />)
+
+                <Typography sx={{ textAlign: 'left', fontSize: "1e" }}>
+                    {mode.toUpperCase()}
+                </Typography>
             </IconButton>
             <Menu
                 id="pin-settings-menu"
@@ -170,6 +187,47 @@ export default function Pin({ pinNum, props, onUpdate }) {
                     </FormControl>
                 </MenuItem>
 
+                {mode === 'pwm' && (
+                    <Container>
+                        <MenuItem>
+                            <TextField
+                                id="standard-basic"
+                                label="Frequency (Hz)"
+                                variant="outlined"
+                                value={hz}
+                                onChange={handleFrequencyChange}
+                            />
+                        </MenuItem>
+                        <MenuItem>
+                            <TextField
+                                id="standard-basic"
+                                label="Min Duty (µs)"
+                                variant="outlined"
+                                value={dutyMin}
+                                onChange={(e) => setDutyMin(e.target.value)}
+                            />
+                        </MenuItem>
+                        <MenuItem>
+                            <TextField
+                                id="standard-basic"
+                                label="Max Duty (µs)"
+                                variant="outlined"
+                                value={dutyMax}
+                                onChange={(e) => setDutyMax(e.target.value)}
+                            />
+                        </MenuItem>
+                        <MenuItem>
+                            <TextField
+                                id="standard-basic"
+                                label="Cycle (µs)"
+                                variant="outlined"
+                                value={cycle}
+                                onChange={handleCycleLenChange}
+                            />
+                        </MenuItem>
+                    </Container>
+                )}
+
                 <MenuItem onClick={handleDelete}>
                     <DeleteIcon color="error" />
                 </MenuItem>
@@ -183,29 +241,12 @@ export default function Pin({ pinNum, props, onUpdate }) {
 
             {mode === 'pwm' && (
                 <Container sx={{ marginTop: '10px' }}>
-                    <TextField
-                        label="(Hz)"
-                        value={frequency}
-                        onChange={handleFrequencyChange}
-                        inputProps={{ min: 4688, max: 19200000 }}
-                        fullWidth
-                    />
-                    <Typography gutterBottom>Duty (µs)</Typography>
                     <Slider
-                        value={dutyLen}
-                        onChange={handleDutyLenChange}
+                        value={duty}
+                        onChange={handleDutyChange}
                         aria-labelledby="duty-length-slider"
-                        min={0}
-                        max={cycleLen}
-                        valueLabelDisplay="auto"
-                    />
-                    <Typography gutterBottom>Cycle (µs)</Typography>
-                    <Slider
-                        value={cycleLen}
-                        onChange={handleCycleLenChange}
-                        aria-labelledby="cycle-length-slider"
-                        min={10000}
-                        max={40000} // Example max for a typical PWM range
+                        min={parseInt(dutyMin, 10)}
+                        max={parseInt(dutyMax, 10)}
                         valueLabelDisplay="auto"
                     />
                 </Container>
