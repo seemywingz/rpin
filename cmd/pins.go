@@ -23,6 +23,18 @@ type Pin struct {
 	GPIO  *rpio.Pin
 }
 
+func (p Pin) ToJSON() string {
+	json, _ := json.Marshal(map[string]any{
+		"on":    p.On,
+		"name":  p.Name,
+		"mode":  p.Mode,
+		"hz":    p.Hz,
+		"duty":  p.Duty,
+		"cycle": p.Cycle,
+	})
+	return string(json)
+}
+
 var pins = make(map[int]Pin)
 var configMutex sync.RWMutex
 
@@ -113,6 +125,13 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 		p.Duty = req.Duty
 		p.Cycle = req.Cycle
 
+		if !validatePin(req.Num, p) {
+			msg = fmt.Sprintf("⛔️  Invalid Pin Config: %d, %v", req.Num, p.ToJSON())
+			http.Error(w, msg, http.StatusBadRequest)
+			log.Printf(msg)
+			return
+		}
+
 		updataGPIOState(p)
 
 		configMutex.Lock()
@@ -169,6 +188,22 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(msg))
 }
 
+func validatePin(num int, pin Pin) bool {
+	if num < 0 || num > 26 {
+		return false
+	}
+	if pin.Mode == "" {
+		return false
+	}
+	if pin.Cycle == 0 {
+		return false
+	}
+	if pin.Hz == 0 {
+		return false
+	}
+	return true
+}
+
 func updatePinConf() {
 	configMutex.RLock()
 	defer configMutex.RUnlock()
@@ -203,9 +238,12 @@ func updatePinConf() {
 
 func updataGPIOState(pin Pin) {
 	switch pin.Mode {
-	case "pwm", "servo":
+	case "pwm":
 		pin.GPIO.Pwm()
-		pin.GPIO.Freq(pin.Hz * int(pin.Cycle))
+		// Set the frequency and duty cycle
+		// The frequency is in Hz and the duty and cycle are in micro-seconds
+		// For example, a duty cycle of 32 and a cycle of 128 would be 25%
+		pin.GPIO.Freq(pin.Hz * int(pin.Cycle)) // 1Hz * 128 = 128Hz
 		if pin.On {
 			pin.GPIO.DutyCycle(pin.Duty, pin.Cycle)
 		} else {

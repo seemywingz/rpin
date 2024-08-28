@@ -5,7 +5,7 @@
   "pins": {
     "12": {
       "cycle": 20000,
-      "duty": 1840,
+      "duty": 913,
       "hz": 50,
       "mode": "pwm",
       "name": "Pin 12",

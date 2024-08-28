@@ -2,12 +2,8 @@ import React, { useState, useRef } from "react";
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { Container, IconButton, Menu, MenuItem, TextField, FormControl, InputLabel, Select, Slider, Typography } from "@mui/material";
-import {
-    SettingsIcon,
-    DeleteIcon,
-    InputIcon,
-    OutputIcon
-} from '@mui/icons-material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Pin({ pinNum, props, onUpdate, config }) {
     const [isOn, setIsOn] = useState(props.on);
@@ -90,7 +86,7 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
         }
     };
 
-    const handleCycleLenChange = (event, newValue) => {
+    const handleCycleChange = (event, newValue) => {
         setCycle(newValue);
         updatePinState({ cycle: newValue });
     };
@@ -121,10 +117,9 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
                     maxHeight: '9px',
                 }}
             >
-
-                (<SettingsIcon sx={{
+                <SettingsIcon sx={{
                     color: isOn ? 'primary.dark' : 'secondary.light',
-                }} />)
+                }} />
 
                 <Typography sx={{ textAlign: 'left', fontSize: "1e" }}>
                     {mode.toUpperCase()}
@@ -204,7 +199,7 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
                                 label="Min Duty (µs)"
                                 variant="outlined"
                                 value={dutyMin}
-                                onChange={(e) => setDutyMin(e.target.value)}
+                                onChange={(e) => setDutyMin(Number(e.target.value))}
                             />
                         </MenuItem>
                         <MenuItem>
@@ -213,7 +208,7 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
                                 label="Max Duty (µs)"
                                 variant="outlined"
                                 value={dutyMax}
-                                onChange={(e) => setDutyMax(e.target.value)}
+                                onChange={(e) => setDutyMax(Number(e.target.value))}
                             />
                         </MenuItem>
                         <MenuItem>
@@ -222,7 +217,7 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
                                 label="Cycle (µs)"
                                 variant="outlined"
                                 value={cycle}
-                                onChange={handleCycleLenChange}
+                                onChange={handleCycleChange}
                             />
                         </MenuItem>
                     </Container>
@@ -245,8 +240,8 @@ export default function Pin({ pinNum, props, onUpdate, config }) {
                         value={duty}
                         onChange={handleDutyChange}
                         aria-labelledby="duty-length-slider"
-                        min={parseInt(dutyMin, 10)}
-                        max={parseInt(dutyMax, 10)}
+                        min={Number(dutyMin)}
+                        max={Number(dutyMax)}
                         valueLabelDisplay="auto"
                     />
                 </Container>
