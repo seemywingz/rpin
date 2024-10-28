@@ -38,7 +38,7 @@ func init() {
 func viperConfig() {
 	viper.SetConfigName("config")      // name of config file (without extension)
 	viper.SetConfigType("json")        // REQUIRED the config file does not have an extension
-	viper.AddConfigPath("$HOME/.vmon") // call multiple times to add many search paths
+	viper.AddConfigPath("$HOME/.rpin") // call multiple times to add many search paths
 	viper.AddConfigPath(".")           // look for config in the working directory
 
 	if configFile != "" {

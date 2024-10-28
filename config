@@ -28,11 +28,5 @@
       "on": false
     }
   },
-  "port": 8080,
-  "servo": {
-    "cycle": 20000,
-    "hz": 50,
-    "maxduty": 2500,
-    "minduty": 550
-  }
+  "port": 8080
 }

@@ -46,7 +46,7 @@ func initPins() {
 	err := rpio.Open()
 	if err != nil {
 		log.Println("💔 Failed to open GPIO")
-		os.Exit(1)
+		// os.Exit(1)
 	}
 
 	for numStr, config := range pinConfigs {
@@ -80,7 +80,7 @@ func initPins() {
 		pins[num] = p
 		configMutex.Unlock()
 
-		updataGPIOState(p)
+		updateGPIOState(p)
 		log.Printf("Initialized Pin: %s, On: %v, Mode: %s\n", numStr, on, p.Mode)
 	}
 }
@@ -132,7 +132,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		updataGPIOState(p)
+		updateGPIOState(p)
 
 		configMutex.Lock()
 		pins[req.Num] = p
@@ -169,7 +169,7 @@ func handlePin(w http.ResponseWriter, r *http.Request) {
 			GPIO: &gpioPin,
 		}
 
-		updataGPIOState(newPin)
+		updateGPIOState(newPin)
 
 		configMutex.Lock()
 		pins[req.Num] = newPin
@@ -237,7 +237,10 @@ func updatePinConf() {
 	viper.ReadInConfig()
 }
 
-func updataGPIOState(pin Pin) {
+func updateGPIOState(pin Pin) {
+	if pin.GPIO == nil {
+		return
+	}
 	switch pin.Mode {
 	case "pwm":
 		pin.GPIO.Pwm()

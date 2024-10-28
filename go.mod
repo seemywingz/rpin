@@ -1,4 +1,4 @@
-module github.com/seemywingz/vmon
+module github.com/seemywingz/rpin
 
 go 1.23
 
